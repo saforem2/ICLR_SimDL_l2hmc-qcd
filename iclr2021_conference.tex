@@ -6,7 +6,7 @@
 \input{math_commands.tex}
 
 \usepackage{xcolor}
-\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
+% \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
 \setlength{\marginparwidth}{2cm}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{enumitem}
@@ -34,6 +34,9 @@
 \definecolor{blue1}{HTML}{448aff}
 \definecolor{pink1}{HTML}{FA5477}
 
+\newcommand{\mbart}{\textcolor{red}{\bar{m}^{t}}}
+\newcommand{\mt}{\textcolor{blue}{m^{t}}}
+
 \title{Neural Transformations for \\Efficient Topological Mixing}% in Lattice Gauge Theory}
 
 % Authors must not appear in the submitted version. They should be hidden
@@ -49,14 +52,6 @@
    \texttt{\{foremans,xjin,\}@anl.gov},%
    \texttt{\{osborn\}@alcf.anl.gov}\\
 }}
-
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to \LaTeX{} to determine where to break
-% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
-% puts 3 of 4 authors names on the first line, and the last on the second
-% line, try using \AND instead of \And before the third author name.
 
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
@@ -75,15 +70,174 @@
    significantly reducing the computational cost required to generate independent gauge configurations.
 \end{abstract}
 
-\section{Introduction}
+\section{\label{sec:notation}Notation}
+For a random variable \(x\), we write \(x\sim p(x)\), and say that \(x\) is distributed according to \(p(x)\).
+
+\section{\label{sec:introduction}Introduction}
+\color{red}{TODO: Complete introduction}\color{black}
 %
-Hamiltonian Monte Carlo
+\section{\label{sec:background}Background}
+\subsection{\label{sec:hamiltonian_dynamics}Hamiltonian Monte Carlo}
+%
+The Hamiltonian Monte Carlo (HMC) algorithm is a widely used technique that allows us to sample from an analytically
+known target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)},
+x^{(1)}, \ldots, x^{(n)}\}\), such that \(x^{(n)}\sim p(x)\) in the limit
+\(n\rightarrow\infty\).
+%
+For our purposes, we assume that our target distribution can be expressed as a Boltzmann distribution, \(p(x) =
+\tfrac{1}{\mathcal{Z}} e^{-S[x]}\propto e^{-S[x]}\), where \(S[x]\) is the \emph{action} of our
+theory.
+%
+In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
+distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
+%
+Our joint distribution can then be written as
+%
+\begin{equation}
+   p(x, v) = p(x)\cdot p(v) \propto e^{-S[x]}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
+\end{equation}
+%
+where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
+%
+Notably, this system obeys Hamilton's equations
+%
+\begin{equation}
+   \dot{x} = \frac{\partial\mathcal{H}}{\partial v},\quad \dot{v} = -\frac{\partial\mathcal{H}}{\partial x}
+\end{equation}
+%
+which can be integrated using the \emph{leapfrog integrator} along iso-probability contours defined by \(\mathcal{H} =
+\text{const}\).
+%
+Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
+proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
+%
+\begin{enumerate}
+   \item Half-step momentum update, \(v(t)\rightarrow v(t+\frac{\varepsilon}{2})\):
+      %
+      \begin{equation}
+         v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
+         \label{eq:original_momentum_update}
+      \end{equation}
+      %
+   \item Full-step position update \(x(t)\rightarrow x(t+\varepsilon)\):
+      %
+      \begin{equation}
+         x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
+         \label{eq:original_position_update}
+      \end{equation}
+      %
+   \item Half-step momentum update, \(v{\left(t+\frac{\varepsilon}{2}\right)}\rightarrow v(t+\varepsilon)\):
+      %
+      \begin{equation}
+         v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
+      \end{equation}
+      %
+\end{enumerate}
+%
+We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon\cdot N_{\mathrm{LF}}\) by
+performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence.
+%
+At the end of our trajectory, we either accept or reject the proposal configuration according to the Metropolis-Hastings
+acceptance criteria,
+%
+\begin{equation}
+   x_{i+1} =
+   \begin{cases}%
+      x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
+      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).
+   \end{cases}
+\end{equation}
+%
+where
+%
+\begin{equation}
+   A(\xi^{\prime}|\xi) = \min\left\{%
+      1,\frac{p(\xi^{\prime})}{p(\xi)}\left|%
+      \frac{\partial\xi^{\prime}}{\partial\xi^{T}}
+      \right|%
+   \right\}.
+   \label{eq:mh_criteria}
+\end{equation}
+%
+The leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
+\(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
+%
+%%%%%%%%%%%%%%%%
+%
+\subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
+In \citep{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
+its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
+distributions.
+%
+For example, the trained L2HMC sampler is shown to be capable of exploring regions of phase space which are typically
+inaccessible with traditional HMC.\@
+%
+Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
+distribution, a feature which is highly desirable for MCMC simulations of lattice gauge theory.
+%
+
+We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
+p(d)\).
+%
+Here we've introduced a (uniformly drawn) binary direction variable \(d\in\{-,+\}\) that determines the ``direction'' of
+our update, and is distributed independently of both \(x\) and \(v\).
+%
+The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
+= x, v\) into the leapfrog updates, which are parameterized by weights in a neural network.
+%
+% Before describing the modified leapfrog updates, we first introduce some notation.
+%
+
+For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
+%
+\begin{align}
+   v^{\prime}_{k} &\equiv \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})\nonumber\\
+   &= v_{k}\odot \exp{\left(\tfrac{\varepsilon}{2}s_{v}^{k}(\zeta_{v_{k}})\right)} -
+      \tfrac{\varepsilon}{2}{\left[\partial_{x}S(x_{k})\odot\exp{\left(\varepsilon q_{v}^{k}(\zeta_{v_{k}})\right)}
+      +t_{v}^{k}(\zeta_{v_{k}})\right]}\\
+   x^{\prime}_{k} &\equiv \Lambda^{\pm}(x_{k};\zeta_{x_{k}})\nonumber\\
+   &= x_{k}\odot\exp(\varepsilon s^{k}_{x}(\zeta_{x_{k}}))
+         + \varepsilon\left[v^{\prime}_{k}\odot\exp(\varepsilon q^{k}_{x}(\zeta_{x_{k}}))
+         + t^{k}_{x}(\zeta_{x_{k}})\right]
+\end{align}
+%
+where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), and \(\zeta_{x_{k}} = (x_{k}, v_{k}, \tau(k))\)
+are subsets of the augmented space independent of the variable being updated (\(v\), \(x\) respectively), (2.) \(\tau(k)
+= {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1, \ldots,
+N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory, and (3.) we indicate the forward \(d=+1\)
+direction by the \(+\) superscript on \(\Gamma^{+}\), \(\Lambda^{+}\) respectively.
+%
+
+This allows us to write the complete leapfrog update (in the forward \(d=+1\) direction) as:
+%
+\begin{enumerate}
+   \item Half-step momentum update:
+      \begin{equation}
+         v^{\prime}_{k} = \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})
+      \end{equation}
+   \item Half-step position update:
+      \begin{equation}
+         x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
+      \end{equation}
+   \item Half-step position update:
+      \begin{equation}
+         x^{\prime\prime}_{k} = \mbart\odot\Lambda^{+}_{k}(x^{\prime}_{k};\zeta_{x^{\prime}_{k}}) + \mt\odot x^{\prime}_{k}
+      \end{equation}
+   \item Half-step momentum update:
+      \begin{equation}
+         v^{\prime\prime}_{k} = \Gamma^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
+      \end{equation}
+\end{enumerate}
+%
+Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
+introducing a binary mask \(m^{t} = \mt\odot\mathbbm{1} + \mbart\odot\mathbbm{1}\) that updates half of the components
+of \(x\) sequentially, as shown in \Figref{fig:splitx}.
+%
 \begin{figure}[htpb]
    \centering
    \includegraphics[width=\textwidth]{figures/splitx.pdf}
-   \caption{\label{fig:split_x}Illustration of the split \(x\) update.}
+   \caption{\label{fig:splitx}Illustration of the split \(x\) update.}
 \end{figure}
-%
 
 \subsubsection*{Acknowledgments}
 This research used resources of the argonne leadership computing facility, which is a doe office of science user
@@ -103,6 +257,4 @@ doe or the united states government.
 
 \appendix
 \section{Appendix}
-You may include other additional sections here.
-
 \end{document}
