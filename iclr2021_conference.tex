@@ -70,9 +70,6 @@
    significantly reducing the computational cost required to generate independent gauge configurations.
 \end{abstract}
 
-\section{\label{sec:notation}Notation}
-For a random variable \(x\), we write \(x\sim p(x)\), and say that \(x\) is distributed according to \(p(x)\).
-
 \section{\label{sec:introduction}Introduction}
 \color{red}{TODO: Complete introduction}\color{black}
 %
@@ -156,7 +153,7 @@ where
       \frac{\partial\xi^{\prime}}{\partial\xi^{T}}
       \right|%
    \right\}.
-   \label{eq:mh_criteria}
+   \label{eq:mhcriteria}
 \end{equation}
 %
 The leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
@@ -183,7 +180,7 @@ Here we've introduced a (uniformly drawn) binary direction variable \(d\in\{-,+\
 our update, and is distributed independently of both \(x\) and \(v\).
 %
 The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-= x, v\) into the leapfrog updates, which are parameterized by weights in a neural network.
+= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.
 %
 % Before describing the modified leapfrog updates, we first introduce some notation.
 %
@@ -238,6 +235,28 @@ of \(x\) sequentially, as shown in \Figref{fig:splitx}.
    \includegraphics[width=\textwidth]{figures/splitx.pdf}
    \caption{\label{fig:splitx}Illustration of the split \(x\) update.}
 \end{figure}
+%
+As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps sequentially and use the
+Metropolis-Hastings criteria (\Eqref{eq:mhcriteria}) to either accept or reject the proposed configurations.
+%
+However, unlike in the expression for HMC, we must take into account the Jacobians of each of the transformations which
+are easily computed to give
+%
+\begin{equation}
+   \left|\tfrac{\partial v^{\prime}_{k}}{\partial v_{k}}\right| 
+      = \exp{\left(\tfrac{\varepsilon}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
+   \left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| 
+      = \exp{\left(\varepsilon s^{k}_{x}(\zeta_{x_{k}})\right)}
+\end{equation}
+%
+Next, we introduce a loss function
+%
+\begin{equation}
+   \mathcal{L}_{\theta}{\left(\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right)} = -\frac{\delta(\xi, \xi^{\prime})}{a^{2}}
+\end{equation}
+%
+where \(\delta(\xi, \xi^{\prime})\) is a suitably chosen \emph{metric function}, and \(a\) is a scaling factor.
+
 
 \subsubsection*{Acknowledgments}
 This research used resources of the argonne leadership computing facility, which is a doe office of science user
