@@ -82,7 +82,7 @@ x^{(1)}, \ldots, x^{(n)}\}\), such that \(x^{(n)}\sim p(x)\) in the limit
 \(n\rightarrow\infty\).
 %
 For our purposes, we assume that our target distribution can be expressed as a Boltzmann distribution, \(p(x) =
-\tfrac{1}{\mathcal{Z}} e^{-S[x]}\propto e^{-S[x]}\), where \(S[x]\) is the \emph{action} of our
+\tfrac{1}{\mathcal{Z}} e^{-S(x)}\propto e^{-S(x)}\), where \(S(x)\) is the \emph{action} of our
 theory.
 %
 In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
@@ -91,7 +91,7 @@ distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
 Our joint distribution can then be written as
 %
 \begin{equation}
-   p(x, v) = p(x)\cdot p(v) \propto e^{-S[x]}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
+   p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
 \end{equation}
 %
 where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
@@ -109,25 +109,32 @@ Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), 
 proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
 %
 \begin{enumerate}
-   \item Half-step momentum update, \(v(t)\rightarrow v(t+\frac{\varepsilon}{2})\):
+   \item Half-step momentum update: \hspace{12pt}\(%
+      v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
+   \)
       %
-      \begin{equation}
-         v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
-         \label{eq:original_momentum_update}
-      \end{equation}
+      % \begin{equation}
+      %    v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
+      %    \label{eq:original_momentum_update}
+      % \end{equation}
       %
-   \item Full-step position update \(x(t)\rightarrow x(t+\varepsilon)\):
+   \item Full-step position update: \hspace{36pt}\(%
+      x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
+   \)
       %
-      \begin{equation}
-         x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
-         \label{eq:original_position_update}
-      \end{equation}
+      % \begin{equation}
+      %    x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
+      %    \label{eq:original_position_update}
+      % \end{equation}
       %
-   \item Half-step momentum update, \(v{\left(t+\frac{\varepsilon}{2}\right)}\rightarrow v(t+\varepsilon)\):
-      %
-      \begin{equation}
+   \item Half-step momentum update:
+      \hspace{18pt} \(%
          v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
-      \end{equation}
+   \)
+      %
+      % \begin{equation}
+      %    v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
+      % \end{equation}
       %
 \end{enumerate}
 %
@@ -156,7 +163,7 @@ where
    \label{eq:mhcriteria}
 \end{equation}
 %
-The leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
+The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
 %
 %%%%%%%%%%%%%%%%
@@ -171,6 +178,12 @@ inaccessible with traditional HMC.\@
 %
 Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
 distribution, a feature which is highly desirable for MCMC simulations of lattice gauge theory.
+%
+
+\textbf{Notable changes:} Compared to the original implementation, we carry throughought the updates a discrete index
+\(k\) parameterizing the current leapfrog step, for \(k = 0, 1, \ldots, N_{\mathrm{LF}}\). In doing so, we are free to
+consider the case where we use different update functions
+(\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) for different leapfrog steps.
 %
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
@@ -191,11 +204,11 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
    v^{\prime}_{k} &\equiv \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})\nonumber\\
    &= v_{k}\odot \exp{\left(\tfrac{\varepsilon}{2}s_{v}^{k}(\zeta_{v_{k}})\right)} -
       \tfrac{\varepsilon}{2}{\left[\partial_{x}S(x_{k})\odot\exp{\left(\varepsilon q_{v}^{k}(\zeta_{v_{k}})\right)}
-      +t_{v}^{k}(\zeta_{v_{k}})\right]}\\
+      +t_{v}^{k}(\zeta_{v_{k}})\right]},\label{eq:new_momentum_update}\\
    x^{\prime}_{k} &\equiv \Lambda^{\pm}(x_{k};\zeta_{x_{k}})\nonumber\\
    &= x_{k}\odot\exp(\varepsilon s^{k}_{x}(\zeta_{x_{k}}))
          + \varepsilon\left[v^{\prime}_{k}\odot\exp(\varepsilon q^{k}_{x}(\zeta_{x_{k}}))
-         + t^{k}_{x}(\zeta_{x_{k}})\right]
+         + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
 where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), and \(\zeta_{x_{k}} = (x_{k}, v_{k}, \tau(k))\)
@@ -208,22 +221,33 @@ direction by the \(+\) superscript on \(\Gamma^{+}\), \(\Lambda^{+}\) respective
 This allows us to write the complete leapfrog update (in the forward \(d=+1\) direction) as:
 %
 \begin{enumerate}
-   \item Half-step momentum update:
-      \begin{equation}
-         v^{\prime}_{k} = \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})
-      \end{equation}
-   \item Half-step position update:
-      \begin{equation}
-         x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
-      \end{equation}
-   \item Half-step position update:
-      \begin{equation}
+   \item Half-step momentum update: \hspace{29pt}\(%
+      v^{\prime}_{k} = \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})%
+   \)
+      % \begin{equation}
+      %    v^{\prime}_{k} = \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})
+      % \end{equation}
+      % updating half the compo: \hspace{17pt} \(%
+   \item Full-step half-position update\footnote{By this we mean we are performing a complete update step that only
+      updates half of the components of \(x\) determined by the mask \(\mt\) and its complement \(\mbart\).}:
+      \hspace{17pt} \(%
+      x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
+   \)
+      % \begin{equation}
+      %    x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
+      % \end{equation}
+   \item Full-step half-position update: \hspace{20pt} \(%
          x^{\prime\prime}_{k} = \mbart\odot\Lambda^{+}_{k}(x^{\prime}_{k};\zeta_{x^{\prime}_{k}}) + \mt\odot x^{\prime}_{k}
-      \end{equation}
-   \item Half-step momentum update:
-      \begin{equation}
+   \)
+      % \begin{equation}
+      %    x^{\prime\prime}_{k} = \mbart\odot\Lambda^{+}_{k}(x^{\prime}_{k};\zeta_{x^{\prime}_{k}}) + \mt\odot x^{\prime}_{k}
+      % \end{equation}
+      \item Half-step momentum update: \hspace{24pt} \(%
          v^{\prime\prime}_{k} = \Gamma^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
-      \end{equation}
+         \)
+      % \begin{equation}
+      %    v^{\prime\prime}_{k} = \Gamma^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
+      % \end{equation}
 \end{enumerate}
 %
 Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
@@ -232,12 +256,12 @@ of \(x\) sequentially, as shown in \Figref{fig:splitx}.
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/splitx.pdf}
+   \includegraphics[width=\textwidth]{figures/splitx4.pdf}
    \caption{\label{fig:splitx}Illustration of the split \(x\) update.}
 \end{figure}
 %
-As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps sequentially and use the
-Metropolis-Hastings criteria (\Eqref{eq:mhcriteria}) to either accept or reject the proposed configurations.
+As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a
+Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
 However, unlike in the expression for HMC, we must take into account the Jacobians of each of the transformations which
 are easily computed to give
@@ -246,8 +270,65 @@ are easily computed to give
    \left|\tfrac{\partial v^{\prime}_{k}}{\partial v_{k}}\right| 
       = \exp{\left(\tfrac{\varepsilon}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
    \left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| 
-      = \exp{\left(\varepsilon s^{k}_{x}(\zeta_{x_{k}})\right)}
+      = \exp{\left(\varepsilon s^{k}_{x}(\zeta_{x_{k}})\right)}.
 \end{equation}
+%
+In order to perform the updates in the generalized leapfrog integrator, we need to evaluate the functions
+\(s, t, q\) in the respective updates.
+%
+We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
+%
+For simplicity, we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the \(s_{x},
+t_{x}, q_{x}\) functions used in the \(x\) update equation, \(x_{k} = \Lambda^{+}(x;\zeta_{x})\) and note that the \(v\)
+update (\Eqref{eq:new_momentum_update}) is identical.
+%
+
+Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v, \tau)\), with \(x\in\mathbb{R}^{n}\),
+\(v\in\mathbb{R}^{n}\), and \(\tau \in \mathbb{R}^{2}\).
+%
+The network splits these inputs and constructs the following intermediate variable
+%
+\begin{equation}
+   z_{1} = \sigma(w_{x}^{T}x + w_{v}^{T}v + w_{\tau}^{T}\tau + b).
+\end{equation}
+%
+This intermediate variable \(z_{1}\) is then passed through another series of fully-connected layers,
+%
+\begin{equation}
+   z_{n} = \sigma(w_{n}^{T} z_{n-1} + b_{n}),\,\, z_{n-1}=\sigma(w_{n-2}^{T}z_{n-2} + b_{n-2}),\,\,%
+   \ldots,\,\, z_{2} = \sigma(w_{2}^{T} z_{1} + b_{2}).
+\end{equation}
+%
+The network outputs \(s_{x}, t_{x}, q_{x}\) are then defined in terms of this final hidden variable \(z_{n}\) as
+%
+\begin{equation}
+   s_{x}(\zeta_{x}) = \alpha_{s}\tanh(w_{s}z_{n} + b_{s}),\quad
+   t_{x}(\zeta_{x}) = w_{t}^{T}z_{n} + b_{t},\quad
+   q_{x}(\zeta_{x}) = \alpha_{q}\tanh(w_{q}z_{n} + b_{q})
+\end{equation}
+%
+where \(\alpha_{s}\), and \(\alpha_{q}\) are trainable scaling factors.
+%
+The only requirement on the details of the network is that the dimensionality of the outputs \(s_{x}, t_{x}, q_{x}\)
+match the dimensionality of our physical variables \(x, v \in\mathbb{R}^{n}\).
+
+%
+%The network first passes each component through its own dense layer and then passes this sum through a subsequent series
+%of layers to produce the desired output
+%
+% The network first splits the input and passes each component through a fully connected layer.
+%
+% These outputs are then summed together and passed through an activation function \(\sigma\) to construct the hidden
+% variable
+%
+% these outputs through an activation function \(\sigma\),
+% %
+% \begin{equation}
+%    z_{1} = \sigma(w_{x}^{T}x + w_{v}^{T}v + w_{\tau}^{T}\tau + b).
+% \end{equation}
+%
+%
+
 %
 Next, we introduce a loss function
 %
