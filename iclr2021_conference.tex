@@ -90,6 +90,7 @@
          1\).
    \item We use the \emph{integrated autocorrelation time} of the topological charge
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) as a metric for determining the efficiency of our trained sampler.
+      The improvement for the trained model compared to generic HMC can be seen in \Figref{fig:autocorr_vs_beta}.
    \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
       constants, and show that our trained model consistently outperforms traditional HMC.\@
 \end{enumerate}
@@ -209,6 +210,10 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
       where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv%
       {(\mathcal{Q}_{\mathbb{R}}^{\prime} - \mathcal{Q}_{\mathbb{R}})}^{2}\) where \(\mathcal{Q}_{\mathbb{R}}\) is the
       \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}
+   \item We introduce an \emph{annealing schedule} during training so that our target distribution becomes 
+      \(p_{t}\propto e^{-\beta_{t}S(x)}\), for \({\{\beta\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1},
+      \ldots, \beta_{N}\}\), where \(t = 0, 1, \ldots, N\) enumerates our training step, \(\beta_{0} < \beta_{1} <
+      \ldots < \beta_{N-1} < \beta_{N} = 1\), and \(\beta_{t+1} - \beta_{t} \ll 1\).
 \end{enumerate}
 %
 
@@ -285,7 +290,7 @@ of \(x\) sequentially, as shown (with the general transformation \(\Lambda^{\pm}
    \centering
    \includegraphics[width=\textwidth]{figures/splitx10.pdf}
    \caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
-   transformation \(\Lambda^{\pm}_{k}\),  }
+   transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
 \end{figure}
 %
 
@@ -297,9 +302,9 @@ However, unlike in the expression for HMC, we must take into account the overall
 %
 \begin{equation}
    \left|\tfrac{\partial v^{\prime}_{k}}{\partial v_{k}}\right| 
-   = \exp{\left(\tfrac{\varepsilon_{k}}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
+   = \exp{\left(\tfrac{\varepsilon^{k}_{v}}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
    \left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| 
-   = \exp{\left(\varepsilon_{k} s^{k}_{x}(\zeta_{x_{k}})\right)}.
+   = \exp{\left(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}})\right)}.
 \end{equation}
 %
 In order to perform the updates in the generalized leapfrog integrator, we need to evaluate each of the functions
@@ -364,7 +369,7 @@ schedule}, during the training phase
    {\{\beta_{t}\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1}, \ldots, \beta_{N-1}, \beta_{N}\},
 \end{equation}
 %
-where \(\beta_{0} < \beta_{1} < \cdots < \beta_{N} \equiv 1\), \(\beta_{t+1} - \beta_{t} \ll 1\), \(N\) denotes the
+where \(\beta_{0} < \beta_{1} < \cdots < \beta_{N} \equiv 1\), \(\beta_{t+1} - \beta_{t} \ll 1\), and \(N\) denotes the
 total number of training steps to be performed.
 %
 Note that we are free to vary \(\beta\) during the initial training phase as long as we recover the true distribution
@@ -377,16 +382,50 @@ In terms of this additional annealing schedule, our target distribution picks up
 our progress through the training phase, which can be written explicitly as  
 %
 \begin{equation}
-   p_{t}(x)\propto e^{-\beta_{t} S(x)}
+   p_{t}(x)\propto e^{-\beta_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N.
 \end{equation}
 %
-for \(t = 0, 1, \ldots, N\).
 
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
 %
 \textbf{Note:} We define the lattice gauge theory in terms of the link variables \(-\pi \leq \varphi_{\mu}(x) < \pi\), which are identified as
 being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi_{\mu}(x) \Longleftrightarrow x\).
 %
+
+\textbf{Notation:} 
+\begin{enumerate}
+   \item Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
+   \item Let \(U_{\mu}(x) = e^{i\varphi_{\mu}(x)} \in U(1)\), with \(\varphi_{\mu}(x) \in [-\pi,\pi]\) denote the
+      \emph{link variables}, where \(\varphi_{\mu}(x)\) denotes the link in the \(\hat{\mu}\)-direction located at the
+      site \(x\).
+   \item Denote by \(P\) the \(1\times1\) elementary plaquette with counter-clockwise orientation as shown in
+      \Figref{fig:plaquette}.
+   \item Define the Wilson action, \(S(\varphi)\),
+      \begin{equation}
+         \beta\cdot S(\varphi) = \sum_{P} 1 - \cos(\varphi_{P}(x))
+      \end{equation}
+      for \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) -
+      \varphi_{\mu}(x+\hat{\nu})-\varphi_{\nu}(x)\).
+   \item Our target distribution is then
+      \begin{equation}
+         p_{t}(\varphi) \propto e^{-\beta_{t}\cdot S(\varphi)}
+      \end{equation}
+      where \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the
+      continuum limit.
+   \item We define two physical quantities, namely the  \emph{real-valued} topological charge,
+      \(\mathcal{Q}_{\mathbb{R}}\in \mathbb{R}\), and the\emph{integer-valued} topological charge,
+      \(\mathcal{Q}_{\mathbb{Z}}\in \mathbb{Z}\) given by
+      % \(\mathcal{Q}_{\mathb{Z}}\), and the \emph{real-valued} topological charge \(\mathcal{Q}_{\mathbb{R}}\), given by
+      \begin{align}
+         \mathcal{Q}_{\mathbb{R}}(\varphi)
+            &= \frac{1}{2\pi}\sum_{P}\sin(\varphi_{P})\label{eq:qr}, \quad\quad
+         \mathcal{Q}_{\mathbb{Z}}(\varphi) = \frac{1}{2\pi}\sum_{P}\left\lfloor\varphi_{P}\right\rfloor,\\
+         \quad&\text{where}\quad \left\lfloor\varphi_{P}\right\rfloor = \varphi_{P} -
+            2\pi\left\lfloor\frac{\varphi_{P}+\pi}{2\pi}\right\rfloor\label{eq:qz}
+      \end{align}
+      % where we approximated the projection in \Eqref{eq:qz} as
+      % \(\left\lfloor\varphi_{P}\right\rfloor\approx\sin\varphi_{P}\).
+\end{enumerate}
 
 We consider a two-dimensional \(U(1)\) lattice gauge theory defined on an \(N_{x}\times N_{t}\) lattice with periodic
 boundary conditions.
@@ -414,7 +453,6 @@ Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms 
 %
 %
 \begin{figure}[htpb]
-    \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
     \centering
     \begin{tikzpicture}
         \draw[->, black, very thick] (0, 0) -- (1, 0) node[anchor=north] {\(\varphi_{\mu}(x)\)};
@@ -439,11 +477,48 @@ Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms 
         \draw[-, black, thick, dashed] (0, 2) -- (-1, 2) node[anchor=west] {};
         \draw[-, black, thick, dashed] (2, 0) -- (2, -1) node[anchor=west] {};
     \end{tikzpicture}
+    \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
 \end{figure}
 \begin{equation}
    U_{\mu}(x) = e^{i\varphi_{\mu}(x)}, \quad \varphi_{\mu}(x) \in \left[-\pi, \pi\right]
 \end{equation}
 %
+\begin{figure}[htpb]
+   \centering
+   \begin{subfigure}{0.48\textwidth}
+      \includegraphics[width=\textwidth]{figures/topological_freezing_green.pdf}
+      \caption{\label{fig:topological_freezing}Plot of the topological charge history \(\mathcal{Q}_{\mathbb{R}}\) vs MC
+      step for both generic HMC (black line), and the trained model (green line)}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.48\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_vs_beta.pdf}
+      \caption{\label{fig:autocorr_vs_beta}Plot of the estimated integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\)
+      vs \(\beta\) for both generic HMC (black dashed line), and the trained model (solid green line).}
+   \end{subfigure}
+\end{figure}
+%
+
+\subsubsection*{Acknowledgments}
+This research used resources of the argonne leadership computing facility, which is a doe office of science user
+facility supported under contract DE\_AC02--06CH11357.%
+%
+This work describes objective technical results and analysis.
+%
+Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the u.s.
+doe or the united states government.
+
+% Use unnumbered third level headings for the acknowledgments. All
+% acknowledgments, including those to funding agencies, go at the end of the paper.
+
+
+\bibliography{iclr2021_conference}
+\bibliographystyle{iclr2021_conference}
+
+\appendix
+\section{Appendix}
+%
+\section{\label{sec:extra_figures}Extra Figures}
 \begin{figure}[htpb]
    \centering
    \begin{subfigure}{0.31\textwidth}
@@ -469,53 +544,63 @@ Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms 
 %
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/topological_freezing_green.pdf}
-      \caption{\label{fig:topological_freezing}Plot of the topological charge history \(\mathcal{Q}_{\mathbb{R}}\) vs MC
-      step for both generic HMC (black line), and the trained model (green line)}
-   \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_vs_beta.pdf}
-      \caption{Plot of the estimated integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\)
-      vs \(\beta\) for both generic HMC (black dashed line), and the trained model (solid green line).}
-   \end{subfigure}
-\end{figure}
-%
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_vs_mc_step1.pdf}
+   \begin{subfigure}{\linewidth}
+      \includegraphics[width=\linewidth]{figures/autocorr_vs_mc_step1.pdf}
       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
-      MC step for both generic HMC and the trained model.}
-   \end{subfigure}
-   \begin{subfigure}{\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_vs_traj_len1.pdf}
+      MC step for both generic HMC and the trained model, for \(\beta = 2, 3, \ldots, 7\) arranged from left to right.}
+   % \end{subfigure}
+   % \begin{subfigure}{\textwidth}
+      \includegraphics[width=\linewidth]{figures/autocorr_vs_traj_len1.pdf}
       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
       \(\lambda\) for both generic HMC and the trained model.}
    \end{subfigure}
 \end{figure}
 %
-
-
-\subsubsection*{Acknowledgments}
-This research used resources of the argonne leadership computing facility, which is a doe office of science user
-facility supported under contract DE\_AC02--06CH11357.%
 %
-This work describes objective technical results and analysis.
+\subsection{\label{subsec:autocorr_plots}Autocorrelation Plots}
 %
-Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the u.s.
-doe or the united states government.
-
-% Use unnumbered third level headings for the acknowledgments. All
-% acknowledgments, including those to funding agencies, go at the end of the paper.
-
-
-\bibliography{iclr2021_conference}
-\bibliographystyle{iclr2021_conference}
-
-\appendix
-\section{Appendix}
+\begin{figure}[htpb]
+   \centering
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2153_b2.pdf}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2151_b3.pdf}
+   \end{subfigure}
+   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+   (grey circles) and the trained model (pink squares)}
+\end{figure}
+%
+\begin{figure}[htpb]
+   \centering
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b4.pdf}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b5.pdf}
+   \end{subfigure}
+   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+   (grey circles) and the trained model (pink squares)}
+\end{figure}
+%
+\begin{figure}[htpb]
+   \centering
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b6.pdf}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b7.pdf}
+   \end{subfigure}
+   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+   (grey circles) and the trained model (pink squares)}
+\end{figure}
+%
 %
 \section{\label{sec:algorithm}Training Algorithm}
 %
@@ -577,63 +662,4 @@ doe or the united states government.
    }\;
    % \caption{\label{alg}Training algorithm}
 \end{algorithm}
-%
-% \begin{algorithm}[htpb]%
-
-%    \SetAlgoSkip{bigskip}%
-%    \SetVlineSkip{20pt}
-%    % \SetAlgoRefName{training}
-%    \SetAlgoLined%
-%    \SetAlgoVlined%
-%    \SetKwProg{Fn}{def}{\string:}{}%
-%    \SetKwFunction{Range}{range}%
-%    \SetKwFor{For}{\color{blue}\texttt{for}}{\string:}{}\color{black}%
-%    \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-%    \SetKwFor{While}{while}{:}{fintq}%
-%    \SetKwInOut{Input}{\color{red}{\texttt{input}}\color{black}}%
-%    \SetKwInOut{Output}{\color{red}{\texttt{output}}\color{black}}%
-%    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
-%    \DontPrintSemicolon%
-%    \caption{Training procedure}%
-%    \Input{%
-%       {}\\
-%       \begin{enumerate}
-%          \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
-%          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
-%             A(\xi^{\prime}|\xi))\)
-%          \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-%          \item \texttt{Annealing schedule}, \({\{\beta_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-%          \item \texttt{Batch of initial states}, \(x\)
-%       \end{enumerate}
-%    }\;%
-%    \texttt{Initialize weights} \(\theta\)\;%
-%    {}\;
-%    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
-%       {}\;
-%       \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;%
-%       \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;%
-%       \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;%
-%       \texttt{construct:} \(\xi \equiv (x, v, d)\)\;%
-%       {}\;%
-%       \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
-%          \texttt{propose:} \(\xi^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi\)
-%       }\;
-%       \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
-%       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
-%       \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
-%       {}\;
-%       \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
-%       A(\xi^{\prime}|\xi))\)\;
-%       {}\;
-%       \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
-%       {}\;
-%       \texttt{assign:} \(x_{t+1} \leftarrow%
-%       \begin{cases}%
-%          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-%          x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
-%       \end{cases}%
-%       \)\;%
-%    }\;
-%    \caption{\label{algorithm:training}Training algorithm}
-% \end{algorithm}
 \end{document}
