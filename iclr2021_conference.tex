@@ -73,6 +73,23 @@
 \section{\label{sec:introduction}Introduction}
 \color{red}{TODO: Complete introduction}\color{black}
 %
+\section{\label{sec:our_contributions}Our Contributions}
+Our main contributions are as follows:
+\begin{enumerate}
+   \item We propose a generalized version of the L2HMC algorithm that allows for different networks with different step
+      sizes for each distinct leapfrog step. We represent this generalization by carrying a discrete index \(k\) through
+      the augmented leapfrog equations, indicating that these functions are allowed to vary.
+   \item We introduce a topological charge metric \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)\) defined as
+      the squared difference between the initial and proposed configurations
+      \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) = {\left(\mathcal{Q}_{\mathbb{R}}^{\prime} -
+      \mathcal{Q}_{\mathbb{R}}\right)}^{2}\)
+   \item We include an \emph{annealing schedule} \({\{\beta\}}_{t=0}^{N_{\mathrm{train}}}\)
+   \item We use the \emph{integrated autocorrelation time} of the topological charge
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) as a metric for determining the efficiency of our trained sampler.
+   \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
+      constants, and show that our trained model consistently outperforms traditional HMC.\@
+\end{enumerate}
+%
 \section{\label{sec:background}Background}
 \subsection{\label{sec:hamiltonian_dynamics}Hamiltonian Monte Carlo}
 %
@@ -148,20 +165,15 @@ acceptance criteria,
    x_{i+1} =
    \begin{cases}%
       x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).
+      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)), \quad\text{where}\quad %
+         A(\xi^{\prime}|\xi) = \min\left\{%
+            1, \frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial{\xi^{\prime}}}{\partial\xi^{T}}\right|%
+         \right\}.
    \end{cases}
-\end{equation}
-%
-where
-%
-\begin{equation}
-   A(\xi^{\prime}|\xi) = \min\left\{%
-      1,\frac{p(\xi^{\prime})}{p(\xi)}\left|%
-      \frac{\partial\xi^{\prime}}{\partial\xi^{T}}
-      \right|%
-   \right\}.
    \label{eq:mhcriteria}
 \end{equation}
+%
+% where
 %
 The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
@@ -169,6 +181,25 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 %%%%%%%%%%%%%%%%
 %
 \subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
+%
+\textbf{Notable changes:} 
+\begin{enumerate}
+   \item Compared to the original implementation, we carry throughought the updates a discrete index \(k\)
+      parameterizing the current leapfrog step, for \(k = 0, 1, \ldots, N_{\mathrm{LF}}\).%
+      In doing so, we are free to consider the case where we use different update functions
+      (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), with completely independent step sizes
+      \(\varepsilon^{k}_{j}\), for each of the \(j = x, v\) updates.
+   \item We propose a modified loss function, defined in terms of the topological charge metric,
+      \begin{equation}
+         \mathcal{L}_{\theta}{\left(\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right)} =
+         \frac{\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)}{a^{2}}
+      \end{equation}
+      where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv%
+      {(\mathcal{Q}_{\mathbb{R}}^{\prime} - \mathcal{Q}_{\mathbb{R}})}^{2}\) where \(\mathcal{Q}_{\mathbb{R}}\) is the
+      \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}
+\end{enumerate}
+%
+
 In \citep{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
 its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
 distributions.
@@ -180,11 +211,6 @@ Additionally, they show that the trained sampler is efficient at mixing between 
 distribution, a feature which is highly desirable for MCMC simulations of lattice gauge theory.
 %
 
-\textbf{Notable changes:} Compared to the original implementation, we carry throughought the updates a discrete index
-\(k\) parameterizing the current leapfrog step, for \(k = 0, 1, \ldots, N_{\mathrm{LF}}\). In doing so, we are free to
-consider the case where we use different update functions
-(\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) for different leapfrog steps.
-%
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
 p(d)\).
@@ -201,13 +227,13 @@ The key modification of the L2HMC algorithm is the introduction of six auxiliary
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
 %
 \begin{align}
-   v^{\prime}_{k} &\equiv \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})\nonumber\\
-   &= v_{k}\odot \exp{\left(\tfrac{\varepsilon}{2}s_{v}^{k}(\zeta_{v_{k}})\right)} -
-      \tfrac{\varepsilon}{2}{\left[\partial_{x}S(x_{k})\odot\exp{\left(\varepsilon q_{v}^{k}(\zeta_{v_{k}})\right)}
+   v^{\prime}_{k} &\equiv \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})
+   = v_{k}\odot \exp{\left(\tfrac{\varepsilon^{k}_{v}}{2}s_{v}^{k}(\zeta_{v_{k}})\right)} -
+   \tfrac{\varepsilon^{k}_{v}}{2}{\left[\partial_{x}S(x_{k})\odot\exp{\left(\varepsilon^{k}_{v} q_{v}^{k}(\zeta_{v_{k}})\right)}
       +t_{v}^{k}(\zeta_{v_{k}})\right]},\label{eq:new_momentum_update}\\
-   x^{\prime}_{k} &\equiv \Lambda^{\pm}(x_{k};\zeta_{x_{k}})\nonumber\\
-   &= x_{k}\odot\exp(\varepsilon s^{k}_{x}(\zeta_{x_{k}}))
-         + \varepsilon\left[v^{\prime}_{k}\odot\exp(\varepsilon q^{k}_{x}(\zeta_{x_{k}}))
+   x^{\prime}_{k} &\equiv \Lambda^{+}(x_{k};\zeta_{x_{k}})
+   = x_{k}\odot\exp(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}}))
+   + \varepsilon^{k}_{x}\left[v^{\prime}_{k}\odot\exp(\varepsilon^{k}_{x} q^{k}_{x}(\zeta_{x_{k}}))
          + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
@@ -215,7 +241,7 @@ where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), and \(\ze
 are subsets of the augmented space independent of the variable being updated (\(v\), \(x\) respectively), (2.) \(\tau(k)
 = {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1, \ldots,
 N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory, and (3.) we indicate the forward \(d=+1\)
-direction by the \(+\) superscript on \(\Gamma^{+}\), \(\Lambda^{+}\) respectively.
+direction by the \(+\) superscript on \(\Gamma^{+}\), and \(\Lambda^{+}\).
 %
 
 This allows us to write the complete leapfrog update (in the forward \(d=+1\) direction) as:
@@ -260,33 +286,37 @@ of \(x\) sequentially, as shown in \Figref{fig:splitx}.
    \caption{\label{fig:splitx}Illustration of the split \(x\) update.}
 \end{figure}
 %
+
 As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a
 Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
-However, unlike in the expression for HMC, we must take into account the Jacobians of each of the transformations which
-are easily computed to give
+However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
+\(\xi\rightarrow\xi^{\prime}\), which can be easily computed as 
 %
 \begin{equation}
    \left|\tfrac{\partial v^{\prime}_{k}}{\partial v_{k}}\right| 
-      = \exp{\left(\tfrac{\varepsilon}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
+   = \exp{\left(\tfrac{\varepsilon_{k}}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
    \left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| 
-      = \exp{\left(\varepsilon s^{k}_{x}(\zeta_{x_{k}})\right)}.
+   = \exp{\left(\varepsilon_{k} s^{k}_{x}(\zeta_{x_{k}})\right)}.
 \end{equation}
 %
-In order to perform the updates in the generalized leapfrog integrator, we need to evaluate the functions
-\(s, t, q\) in the respective updates.
+In order to perform the updates in the generalized leapfrog integrator, we need to evaluate each of the functions
+\(s, t, q\).
 %
-We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
+% We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
 %
-For simplicity, we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the \(s_{x},
-t_{x}, q_{x}\) functions used in the \(x\) update equation, \(x_{k} = \Lambda^{+}(x;\zeta_{x})\) and note that the \(v\)
-update (\Eqref{eq:new_momentum_update}) is identical.
+Without loss of generality\footnote{Because we maintain a separate network with identical architecture for evaluating
+the \(s, t, q\) functions in the momentum update equation, \Eqref{eq:new_momentum_update}, the procedure is identical},
+we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the
+\(s_{x}, t_{x}, q_{x}\) functions used in the \(x\) update equation, \Eqref{eq:new_position_update}.
+% \(x_{k} = \Lambda^{+}(x;\zeta_{x})\).
 %
 
 Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v, \tau)\), with \(x\in\mathbb{R}^{n}\),
 \(v\in\mathbb{R}^{n}\), and \(\tau \in \mathbb{R}^{2}\).
 %
-The network splits these inputs and constructs the following intermediate variable
+The network splits these inputs and constructs the following intermediate variable (where \(\sigma\) denotes an
+arbitrary activation function)
 %
 \begin{equation}
    z_{1} = \sigma(w_{x}^{T}x + w_{v}^{T}v + w_{\tau}^{T}\tau + b).
@@ -311,32 +341,34 @@ where \(\alpha_{s}\), and \(\alpha_{q}\) are trainable scaling factors.
 %
 The only requirement on the details of the network is that the dimensionality of the outputs \(s_{x}, t_{x}, q_{x}\)
 match the dimensionality of our physical variables \(x, v \in\mathbb{R}^{n}\).
+%
+%%%%%%%%%%%%%%
 
-%
-%The network first passes each component through its own dense layer and then passes this sum through a subsequent series
-%of layers to produce the desired output
-%
-% The network first splits the input and passes each component through a fully connected layer.
-%
-% These outputs are then summed together and passed through an activation function \(\sigma\) to construct the hidden
-% variable
-%
-% these outputs through an activation function \(\sigma\),
-% %
-% \begin{equation}
-%    z_{1} = \sigma(w_{x}^{T}x + w_{v}^{T}v + w_{\tau}^{T}\tau + b).
-% \end{equation}
-%
-%
-
-%
 Next, we introduce a loss function
 %
 \begin{equation}
-   \mathcal{L}_{\theta}{\left(\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right)} = -\frac{\delta(\xi, \xi^{\prime})}{a^{2}}
+   \mathcal{L}_{\theta}{\left(\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right)}
+      = -\frac{A(\xi^{\prime}|\xi)\cdot \delta(\xi, \xi^{\prime})}{a^{2}}
 \end{equation}
 %
 where \(\delta(\xi, \xi^{\prime})\) is a suitably chosen \emph{metric function}, and \(a\) is a scaling factor.
+
+\section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
+%
+\textbf{Note:} We define the lattice gauge theory in terms of the link variables \(\varphi(x)\), which are identified as
+being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}.
+%
+
+We consider a two-dimensional \(U(1)\) lattice gauge theory defined on an \(N_{x}\times N_{t}\) lattice with periodic
+boundary conditions.
+%
+We consider the Wilson action \(S(\varphi)\), defined in terms of the link variables,
+%
+\begin{equation}
+   U_{\mu}(x) = e^{i\varphi_{\mu}(x)}, \quad \varphi_{\mu}(x) \in \left[-\pi, \pi\right]
+\end{equation}
+%
+
 
 
 \subsubsection*{Acknowledgments}
