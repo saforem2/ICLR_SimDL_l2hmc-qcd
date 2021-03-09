@@ -283,9 +283,6 @@ of \(x\) sequentially, as shown (with the general transformation \(\Lambda^{\pm}
 %
 \begin{figure}[htpb]
    \centering
-   % \includegraphics[width=\textwidth]{figures/splitx4.pdf}
-   % \includegraphics[width=\textwidth]{figures/splitx8.pdf}
-   % \includegraphics[width=\textwidth]{figures/splitx9.pdf}
    \includegraphics[width=\textwidth]{figures/splitx10.pdf}
    \caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
    transformation \(\Lambda^{\pm}_{k}\),  }
@@ -417,6 +414,7 @@ Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms 
 %
 %
 \begin{figure}[htpb]
+    \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
     \centering
     \begin{tikzpicture}
         \draw[->, black, very thick] (0, 0) -- (1, 0) node[anchor=north] {\(\varphi_{\mu}(x)\)};
@@ -441,7 +439,6 @@ Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms 
         \draw[-, black, thick, dashed] (0, 2) -- (-1, 2) node[anchor=west] {};
         \draw[-, black, thick, dashed] (2, 0) -- (2, -1) node[anchor=west] {};
     \end{tikzpicture}
-    \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
 \end{figure}
 \begin{equation}
    U_{\mu}(x) = e^{i\varphi_{\mu}(x)}, \quad \varphi_{\mu}(x) \in \left[-\pi, \pi\right]
@@ -522,81 +519,23 @@ doe or the united states government.
 %
 \section{\label{sec:algorithm}Training Algorithm}
 %
-% \begin{algorithm}[htpb]%
-%    % \SetAlgoSkip{bigskip}%
-%    % \SetVlineSkip{20pt}
-%    \SetNlSty{texttt}{[}{]}
-%    % \SetAlgoRefName{training}
-%    \SetAlgoLined%
-%    \SetAlgoVlined%
-%    \SetKwProg{Fn}{def}{\string:}{}%
-%    \SetKwFunction{Range}{range}%
-%    \SetKwFor{For}{\color{blue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
-%    \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-%    \SetKwFor{While}{while}{:}{fintq}%
-%    \SetKwInOut{Input}{\color{red}{\textbf{\texttt{input}}}\color{black}}%
-%    \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
-%    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
-%    \DontPrintSemicolon%
-%    \caption{\label{alg:training_algorithm}Training procedure}%
-%    \Input{%
-%       {}\\
-%       \begin{enumerate}
-%          \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
-%          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
-%             A(\xi^{\prime}|\xi))\)
-%          \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-%          \item \texttt{Annealing schedule}, \({\{\beta_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-%          \item \texttt{Batch of initial states}, \(x\)
-%       \end{enumerate}
-%    };%
-%    \texttt{Initialize weights} \(\theta\)\;
-%    {}\;
-%    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
-%       {}\;
-%       \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
-%       \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
-%       \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
-%       \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
-%       {}\;
-%       \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
-%          \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
-%       }\;
-%       \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
-%       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
-%       \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
-%       {}\;
-%       \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
-%       A(\xi^{\prime}|\xi))\)\;
-%       {}\;
-%       \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
-%       {}\;
-%       \texttt{assign:} \(x_{t+1} \leftarrow
-%       \begin{cases}
-%          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-%          x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
-%       \end{cases}%
-%       \)\;
-%    }\;
-%    % \caption{\label{alg}Training algorithm}
-% \end{algorithm}
-%
 \begin{algorithm}[htpb]%
-   \SetAlgoSkip{bigskip}%
-   \SetVlineSkip{20pt}
+   % \SetAlgoSkip{bigskip}%
+   % \SetVlineSkip{20pt}
+   \SetNlSty{texttt}{[}{]}
    % \SetAlgoRefName{training}
    \SetAlgoLined%
    \SetAlgoVlined%
    \SetKwProg{Fn}{def}{\string:}{}%
    \SetKwFunction{Range}{range}%
-   \SetKwFor{For}{\color{blue}\texttt{for}}{\string:}{}\color{black}%
+   \SetKwFor{For}{\color{blue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
    \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
    \SetKwFor{While}{while}{:}{fintq}%
-   \SetKwInOut{Input}{\color{red}{\texttt{input}}\color{black}}%
-   \SetKwInOut{Output}{\color{red}{\texttt{output}}\color{black}}%
+   \SetKwInOut{Input}{\color{red}{\textbf{\texttt{input}}}\color{black}}%
+   \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
    \DontPrintSemicolon%
-   \caption{Training procedure}%
+   \caption{\label{alg:training_algorithm}Training procedure}%
    \Input{%
       {}\\
       \begin{enumerate}
@@ -607,18 +546,18 @@ doe or the united states government.
          \item \texttt{Annealing schedule}, \({\{\beta_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
          \item \texttt{Batch of initial states}, \(x\)
       \end{enumerate}
-   }\;%
-   \texttt{Initialize weights} \(\theta\)\;%
+   };%
+   \texttt{Initialize weights} \(\theta\)\;
    {}\;
    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
       {}\;
-      \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;%
-      \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;%
-      \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;%
-      \texttt{construct:} \(\xi \equiv (x, v, d)\)\;%
-      {}\;%
+      \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
+      \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
+      \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
+      \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
+      {}\;
       \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
-         \texttt{propose:} \(\xi^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi\)
+         \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
       }\;
       \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
@@ -629,13 +568,72 @@ doe or the united states government.
       {}\;
       \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
       {}\;
-      \texttt{assign:} \(x_{t+1} \leftarrow%
-      \begin{cases}%
+      \texttt{assign:} \(x_{t+1} \leftarrow
+      \begin{cases}
          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
          x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
       \end{cases}%
-      \)\;%
+      \)\;
    }\;
-   \caption{\label{algorithm:training}Training algorithm}
+   % \caption{\label{alg}Training algorithm}
 \end{algorithm}
+%
+% \begin{algorithm}[htpb]%
+
+%    \SetAlgoSkip{bigskip}%
+%    \SetVlineSkip{20pt}
+%    % \SetAlgoRefName{training}
+%    \SetAlgoLined%
+%    \SetAlgoVlined%
+%    \SetKwProg{Fn}{def}{\string:}{}%
+%    \SetKwFunction{Range}{range}%
+%    \SetKwFor{For}{\color{blue}\texttt{for}}{\string:}{}\color{black}%
+%    \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+%    \SetKwFor{While}{while}{:}{fintq}%
+%    \SetKwInOut{Input}{\color{red}{\texttt{input}}\color{black}}%
+%    \SetKwInOut{Output}{\color{red}{\texttt{output}}\color{black}}%
+%    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
+%    \DontPrintSemicolon%
+%    \caption{Training procedure}%
+%    \Input{%
+%       {}\\
+%       \begin{enumerate}
+%          \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
+%          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
+%             A(\xi^{\prime}|\xi))\)
+%          \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
+%          \item \texttt{Annealing schedule}, \({\{\beta_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
+%          \item \texttt{Batch of initial states}, \(x\)
+%       \end{enumerate}
+%    }\;%
+%    \texttt{Initialize weights} \(\theta\)\;%
+%    {}\;
+%    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
+%       {}\;
+%       \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;%
+%       \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;%
+%       \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;%
+%       \texttt{construct:} \(\xi \equiv (x, v, d)\)\;%
+%       {}\;%
+%       \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
+%          \texttt{propose:} \(\xi^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi\)
+%       }\;
+%       \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
+%       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
+%       \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
+%       {}\;
+%       \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
+%       A(\xi^{\prime}|\xi))\)\;
+%       {}\;
+%       \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
+%       {}\;
+%       \texttt{assign:} \(x_{t+1} \leftarrow%
+%       \begin{cases}%
+%          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
+%          x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
+%       \end{cases}%
+%       \)\;%
+%    }\;
+%    \caption{\label{algorithm:training}Training algorithm}
+% \end{algorithm}
 \end{document}
