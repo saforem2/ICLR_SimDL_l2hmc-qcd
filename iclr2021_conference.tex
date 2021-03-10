@@ -108,11 +108,11 @@
       first \(\sim25\%\) of configurations for thermalization), and we use blocked jackknife resampling to compute
       the error estimates.
       %
-   \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\beta\}}_{t=0}^{N} =
-      \{\beta_{0}, \beta_{1}, \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\), with
-      \(|\beta_{t}|<1\) and \(\beta_{t+1} - \beta_{t} \ll 1\) that is slowly varied during training (and removed
+   \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\gamma\}}_{t=0}^{N} =
+      \{\gamma_{0}, \gamma_{1}, \ldots \gamma_{N}\}\), with \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N}\), with
+      \(|\gamma_{t}|<1\) and \(\gamma_{t+1} - \gamma_{t} \ll 1\) that is slowly varied during training (and removed
       entirely during inference) that scales the potential energy function in our target distribution, \(p_{t}(x)\propto
-      e^{\beta_{t}S(x)}\), that allows our sampler to explore previously inaccessible regions of the phase space by
+      e^{\gamma_{t}S(x)}\), that allows our sampler to explore previously inaccessible regions of the phase space by
       shrinking the height of the various energy barriers separating isolated modes.
       %
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
@@ -125,7 +125,7 @@
       The improvement for the trained model compared to generic HMC can be seen in \Figref{fig:autocorr_vs_beta}.
       %
    \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
-      constants, and show that our trained model consistently outperforms traditional HMC.\@
+      constants \(\beta\), and show that our trained model consistently outperforms traditional HMC.\@
       %
       These results can be seen in \Secref{subsec:autocorr_plots}.
 \end{enumerate}
@@ -213,7 +213,8 @@ We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\
 p(d)\).
 %
 Here we've introduced a binary direction variable (distributed independently of both \(x\) and \(v\))
-\(d\sim\mathcal{U}(+,-)\) that determines the ``direction'' of our update.
+\(d\sim\mathcal{U}(+,-)\) which is resampled following each Metropolis-Hastings accept/reject step, and can be
+interpreted as determining the ``direction'' (forward/backward) of our update.
 %
 \textbf{The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
 = x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.}
@@ -288,6 +289,10 @@ However, unlike in the expression for HMC, we must take into account the overall
    = \exp{\left(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}})\right)}.
 \end{equation}
 %
+So far we've restricted our attention to the forward \((d=+1)\) update, however we can obtain the expressions for the
+reverse direction simply by inverting the two functions \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}\),
+\(\Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\), and performing the updates in the reverse order.
+
 In order to perform the updates in the generalized leapfrog integrator, we need to evaluate each of the functions
 \(s, t, q\).
 %
@@ -347,23 +352,23 @@ To help our sampler overcome the large energy barriers between isolated modes, w
 schedule}, during the training phase
 %
 \begin{equation}
-   {\{\beta_{t}\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1}, \ldots, \beta_{N-1}, \beta_{N}\},
+   {\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots, \gamma_{N-1}, \gamma_{N}\},
 \end{equation}
 %
-where \(\beta_{0} < \beta_{1} < \cdots < \beta_{N} \equiv 1\), \(\beta_{t+1} - \beta_{t} \ll 1\), and \(N\) denotes the
+where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} - \gamma_{t} \ll 1\), and \(N\) denotes the
 total number of training steps to be performed.
 %
-Note that we are free to vary \(\beta\) during the initial training phase as long as we recover the true distribution
-with \(\beta \equiv 1\) at the end of training and evaluate our trained model without this factor.
+Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
+with \(\gamma \equiv 1\) at the end of training and evaluate our trained model without this factor.
 %
-Explicitly, for \(\beta_{t} < 1\) this rescaling factor helps to reduce the height of the energy barriers, making it
+Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the height of the energy barriers, making it
 easier for our sampler to explore previously inaccessible regions of the phase space.
 %
 In terms of this additional annealing schedule, our target distribution picks up an additional index \(t\) to represent
 our progress through the training phase, which can be written explicitly as  
 %
 \begin{equation}
-   p_{t}(x)\propto e^{-\beta_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N.
+   p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N.
 \end{equation}
 %
 
@@ -388,7 +393,7 @@ variables}, where \(\varphi_{\mu}(x)\) denotes the link oriented in the \(\hat{\
 We can write our target distribution \(p_{t}(\varphi)\) in terms of the Wilson action, \(S(\varphi)\) as
 %
 \begin{equation}
-   p_{t}(\varphi) = e^{-\beta_{t}S(\varphi)},\quad\text{with}\quad S(\varphi) = \sum_{P}1 - \cos(\varphi_{P})
+   p_{t}(\varphi) = e^{-\gamma_{t}\beta\cdot S(\varphi)},\quad\text{with}\quad \beta\cdot S(\varphi) = \sum_{P}1 - \cos(\varphi_{P})
 \end{equation}
 %
 and \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu})
