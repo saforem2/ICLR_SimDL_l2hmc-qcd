@@ -85,14 +85,26 @@
       (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that these functions are allowed to
       vary.
       %
-   \item We introduce a topological charge metric \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)\) defined as
-      the squared difference between the initial and proposed configurations
-      \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) = {\left(\mathcal{Q}_{\mathbb{R}}^{\prime} -
-      \mathcal{Q}_{\mathbb{R}}\right)}^{2}\).
+   \item We propose a modified loss function, defined in terms of the topological charge metric,
+      %
+      \begin{equation}
+         \mathcal{L}_{\theta}{\left[\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right]} =%
+         \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime},\xi)}{a^{2}}
+      \end{equation}
+      %
+      where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv
+      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}\), and \(\mathcal{Q}_{\mathbb{R}}\)
+      is the \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}.
       %
       We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
-      the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\) introduced in the augmented leapfrog
-      updates (\Secref{sec:l2hmc})
+      the weights parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\) introduced in
+      the augmented leapfrog updates in \Secref{sec:l2hmc}.
+      %
+   \item During training we maintain a buffer of \(M = 2048\) (``batch size'') chains which are updated in parallel.
+      %
+      Expectation values of physical quantities are calculated as averages over these \(M\) chains (after dropping the
+      first \(\sim25\%\) of configurations for thermalization), and we use blocked jackknife resampling to compute
+      the error estimates.
       %
    \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\beta\}}_{t=0}^{N} =
       \{\beta_{0}, \beta_{1}, \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\) and
@@ -101,7 +113,6 @@
       %
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
       \(N_{x}\times N_{t}\) lattice with periodic boundary conditions, and report a significant reduction in the
-
       computational cost required to generate independent \emph{gauge configurations}.
       %
    \item We use the \emph{integrated autocorrelation time} of the topological charge
@@ -139,7 +150,7 @@ multiple works
    neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
    hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,schaefer2009investigating,
    cossu2018testing,rezende2020normalizing%
-},%
+}, 
 that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field theories.
 % timprove existing sampling techniques by introducing some trainable architecture that encourages various
 % properties.
@@ -155,31 +166,31 @@ that look at developing more efficient sampling techniques specifically tailored
 %
 \section{\label{sec:background}Background}
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
-\Secref{sec:HMC}.
+\Secref{subsec:HMC}.
 %
 \subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
 %
-\textbf{Notable changes:} 
-\begin{enumerate}
-   \item Compared to the original implementation, we carry throughought the updates a discrete index \(k = 0, 1, \ldots,
-      N_{\mathrm{LF}}\), parameterizing the current leapfrog step.%
-
-      In doing so, we are free to consider the case where we use different update functions
-      (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), with completely independent step sizes
-      \(\varepsilon^{k}_{j}\), for each of the \(j = x, v\) updates.
-   \item We propose a modified loss function, defined in terms of the topological charge metric,
-      \begin{equation}
-         \mathcal{L}_{\theta}{\left(\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right)} =
-         \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)}{a^{2}}
-      \end{equation}
-      where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv%
-      {(\mathcal{Q}_{\mathbb{R}}^{\prime} - \mathcal{Q}_{\mathbb{R}})}^{2}\) where \(\mathcal{Q}_{\mathbb{R}}\) is the
-      \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}
-   \item We introduce an \emph{annealing schedule} during training so that our target distribution becomes 
-      \(p_{t}\propto e^{-\beta_{t}S(x)}\), for \({\{\beta\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1},
-      \ldots, \beta_{N}\}\), where \(t = 0, 1, \ldots, N\) enumerates our training step, \(\beta_{0} < \beta_{1} <
-      \ldots < \beta_{N-1} < \beta_{N} = 1\), and \(\beta_{t+1} - \beta_{t} \ll 1\).
-\end{enumerate}
+% \textbf{Notable changes:}
+% \begin{enumerate}
+%    \item Compared to the original implementation, we carry throughought the updates a discrete index \(k = 0, 1, \ldots,
+%       N_{\mathrm{LF}}\), parameterizing the current leapfrog step.%
+%
+%       In doing so, we are free to consider the case where we use different update functions
+%       (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), with completely independent step sizes
+%       \(\varepsilon^{k}_{j}\), for each of the \(j = x, v\) updates.
+%    \item We propose a modified loss function, defined in terms of the topological charge metric,
+%       \begin{equation}
+%          \mathcal{L}_{\theta}{\left(\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right)} =
+%          \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)}{a^{2}}
+%       \end{equation}
+%       where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv%
+%       {(\mathcal{Q}_{\mathbb{R}}^{\prime} - \mathcal{Q}_{\mathbb{R}})}^{2}\) where \(\mathcal{Q}_{\mathbb{R}}\) is the
+%       \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}
+%    \item We introduce an \emph{annealing schedule} during training so that our target distribution becomes
+%       \(p_{t}\propto e^{-\beta_{t}S(x)}\), for \({\{\beta\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1},
+%       \ldots, \beta_{N}\}\), where \(t = 0, 1, \ldots, N\) enumerates our training step, \(\beta_{0} < \beta_{1} <
+%       \ldots < \beta_{N-1} < \beta_{N} = 1\), and \(\beta_{t+1} - \beta_{t} \ll 1\).
+% \end{enumerate}
 %
 
 In \citep{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
@@ -197,11 +208,11 @@ distribution, a feature which is highly desirable for MCMC simulations of lattic
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
 p(d)\).
 %
-Here we've introduced a (uniformly drawn) binary direction variable \(d\in\{-,+\}\) that determines the ``direction'' of
-our update, and is distributed independently of both \(x\) and \(v\).
+Here we've introduced a binary direction variable (distributed independently of both \(x\) and \(v\))
+\(d\sim\mathcal{U}(+,-)\) that determines the ``direction'' of our update.
 %
-The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.
+\textbf{The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
+= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.}
 %
 % Before describing the modified leapfrog updates, we first introduce some notation.
 %
@@ -219,11 +230,12 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
          + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
-where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), and \(\zeta_{x_{k}} = (x_{k}, v_{k}, \tau(k))\)
-are subsets of the augmented space independent of the variable being updated (\(v\), \(x\) respectively), (2.) \(\tau(k)
-= {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1, \ldots,
-N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory, and (3.) we indicate the forward \(d=+1\)
-direction by the \(+\) superscript on \(\Gamma^{+}\), and \(\Lambda^{+}\).
+where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), \(\zeta_{x_{k}} = (x_{k}, v_{k}, \tau(k))\) are a
+shorthand notation for the input passed to the respective \(s, t, q\) network functions\footnote{Note that \(\zeta_{x},
+\zeta_{v}\) are chosen to be subsets of the augmented state space that are independent of the variable being updated.}
+(2.) \(\tau(k) = {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1,
+\ldots, N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory, and (3.) we indicate the forward
+\(d=+1\) direction by the \(+\) superscript on \(\Gamma^{+}\), and \(\Lambda^{+}\).
 %
 Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction) as:
 %
@@ -356,65 +368,43 @@ our progress through the training phase, which can be written explicitly as
 \textbf{Note:} We define the lattice gauge theory in terms of the link variables \(-\pi \leq \varphi_{\mu}(x) < \pi\),
 which we explicitly choose to identify as the physical (position) variable \(x\) in \Secref{sec:l2hmc}, i.e.\ 
 \begin{equation}
-   \varphi_{\mu}(x)\Longleftrightarrow x.
+   \varphi_{\mu}(x)\Longleftrightarrow x, \quad p(x)\Longleftrightarrow p(\varphi),\quad \text{etc.}.
 \end{equation}
 % being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi_{\mu}(x) \Longleftrightarrow x\).
 %
-
-\textbf{Notation:} 
-\begin{enumerate}
-   \item Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
-   \item Let \(U_{\mu}(x) = e^{i\varphi_{\mu}(x)} \in U(1)\), with \(\varphi_{\mu}(x) \in [-\pi,\pi]\) denote the
-      \emph{link variables}, where \(\varphi_{\mu}(x)\) denotes the link in the \(\hat{\mu}\)-direction located at the
-      site \(x\).
-   \item Denote by \(P\) the \(1\times1\) elementary plaquette with counter-clockwise orientation as shown in
-      \Figref{fig:plaquette}.
-   \item Define the Wilson action, \(S(\varphi)\),
-      \begin{equation}
-         \beta\cdot S(\varphi) = \sum_{P} 1 - \cos(\varphi_{P}(x))
-      \end{equation}
-      for \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) -
-      \varphi_{\mu}(x+\hat{\nu})-\varphi_{\nu}(x)\).
-   \item Our target distribution is then
-      \begin{equation}
-         p_{t}(\varphi) \propto e^{-\beta_{t}\cdot S(\varphi)}
-      \end{equation}
-      where \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the
-      continuum limit.
-   \item We define two physical quantities, namely the  \emph{real-valued} topological charge,
-      \(\mathcal{Q}_{\mathbb{R}}\in \mathbb{R}\), and the \emph{integer-valued} topological charge,
-      \(\mathcal{Q}_{\mathbb{Z}}\in \mathbb{Z}\) given by
-      \begin{align}
-         \mathcal{Q}_{\mathbb{R}}(\varphi)
-            &= \frac{1}{2\pi}\sum_{P}\sin(\varphi_{P})\label{eq:qr}, \quad\quad
-         \mathcal{Q}_{\mathbb{Z}}(\varphi) = \frac{1}{2\pi}\sum_{P}\left\lfloor\varphi_{P}\right\rfloor,\\
-         \quad&\text{where}\quad \left\lfloor\varphi_{P}\right\rfloor = \varphi_{P} -
-            2\pi\left\lfloor\frac{\varphi_{P}+\pi}{2\pi}\right\rfloor\label{eq:qz}
-      \end{align}
-      % where we approximated the projection in \Eqref{eq:qz} as
-      % \(\left\lfloor\varphi_{P}\right\rfloor\approx\sin\varphi_{P}\).
-\end{enumerate}
-
-% We consider a two-dimensional \(U(1)\) lattice gauge theory defined on an \(N_{x}\times N_{t}\) lattice with periodic
-% boundary conditions.
-% %
-% Our target distribution \(p(\varphi)\) is defined in terms of the Wilson action as
-% %
-% %
-% Here, \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant of the theory, and \(\beta\rightarrow\infty\) gives the
-% continuum limit.
-% %
-% Here, \(\varphi_{P}\) denotes the sum of the link variables around the elementary plaquette,
-% %
-% \begin{equation}
-%    \varphi_{P} = \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu}) - \varphi_{\nu}(x) \in[0,4\pi]
-% \end{equation}
-% %
-% as shown in \Figref{fig:plaquette}.
-% %
-% Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms of the link variables \(\varphi_{\mu}(x)
-% \in \left[-\pi, \pi\right]\)
-% %
+Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
+%
+Let \(U_{\mu}(x) = e^{i\varphi_{\mu}(x)} \in U(1)\), with \(\varphi_{\mu}(x) \in [-\pi,\pi]\) denote the \emph{link
+variables}, where \(\varphi_{\mu}(x)\) denotes the link oriented in the \(\hat{\mu}\)-direction located at the site
+\(x\).
+%
+% We denote by \(P\) the \(1\times1\) elementary plaquette with counter-clockwise orientation as shown in
+% \Figref{fig:plaquette}.
+%
+We can write our target distribution \(p_{t}(\varphi)\) in terms of the Wilson action, \(S(\varphi)\) as
+%
+\begin{equation}
+   p_{t}(\varphi) = e^{-\beta_{t}S(\varphi)},\quad\text{with}\quad S(\varphi) = \sum_{P}1 - \cos(\varphi_{P})
+\end{equation}
+%
+and \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu})
+-\varphi_{\nu}(x)\) is the sum of the link variables around the \(1\times1\) elementary plaquette, as shown in
+\Figref{fig:plaquette}.
+%
+Here, \(\beta = 2 / g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the continuum
+limit of the theory. 
+%
+We consider two physical quantities of interest, namely the \emph{real} and \emph{integer} valued \emph{topological
+charge}, (\(\mathcal{Q}_{\mathbb{R}} \in \mathbb{R}\), and \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), respectively)
+defined as
+%
+\begin{equation*}
+   \mathcal{Q}_{\mathbb{R}}(\varphi) 
+   \equiv \frac{1}{2\pi}\sum_{P}\sin(\varphi_{P}),\quad%
+      \mathcal{Q}_{\mathbb{Z}}(\varphi) \equiv \frac{1}{2\pi}\sum_{P}\left\lfloor\varphi_{P}\right\rfloor,
+   \quad\text{where}\quad \left\lfloor\varphi_{P}\right\rfloor = \varphi_{P} -
+   2\pi\left\lfloor\frac{\varphi_{P}+\pi}{2\pi}\right\rfloor
+\end{equation*}
 %
 \begin{figure}[htpb]
     \centering
@@ -464,7 +454,7 @@ which we explicitly choose to identify as the physical (position) variable \(x\)
 %
 
 \subsubsection*{Acknowledgments}
-This research used resources of the argonne leadership computing facility, which is a doe office of science user
+This research used resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE office of science user
 facility supported under contract DE\_AC02--06CH11357.%
 %
 This work describes objective technical results and analysis.
@@ -472,17 +462,13 @@ This work describes objective technical results and analysis.
 Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the u.s.
 doe or the united states government.
 
-% Use unnumbered third level headings for the acknowledgments. All
-% acknowledgments, including those to funding agencies, go at the end of the paper.
-
-
 \bibliography{iclr2021_conference}
 \bibliographystyle{iclr2021_conference}
 
 \appendix
 \section{Appendix}
 %
-\section{\label{sec:HMC}Hamiltonian Monte Carlo}
+\subsection{\label{subsec:HMC}Hamiltonian Monte Carlo}
 %
 The Hamiltonian Monte Carlo (HMC) algorithm is a widely used technique that allows us to sample from an analytically
 known target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)},
@@ -571,27 +557,30 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
 %
 
-\section{\label{sec:extra_figures}Extra Figures}
+\subsection{\label{subsec:extra_figures}Extra Figures}
 \begin{figure}[htpb]
    \centering
    \begin{subfigure}{0.31\textwidth}
-      \includegraphics[width=\textwidth]{figures/plaqsf.pdf}
-      \caption{\label{fig:plaqsf}Illustration of the error in the average plaquette,
-      \(\langle\varphi_{P}-\varphi_{P}^{*}\rangle\) vs leapfrog step.}
+      % \includegraphics[width=\textwidth]{figures/plaqsf.pdf}
+      \includegraphics[width=\textwidth]{figures/2021-03-09/plaqsf_1758.pdf}
+      \caption{\label{fig:plaqsf}Error in the average plaquette, \(\langle\varphi_{P}-\varphi_{P}^{*}\rangle\) vs
+      leapfrog step.}
    \end{subfigure}
    \hfill
    \begin{subfigure}{0.31\textwidth}
-      \includegraphics[width=\textwidth]{figures/hwf.pdf}
-      \caption{\label{fig:hwf}Illustration of the error in the rescaled energy,
+      % \includegraphics[width=\textwidth]{figures/sinQf.pdf}
+      \includegraphics[width=\textwidth]{figures/2021-03-09/sinQf_1755.pdf}
+      % \includegraphics[width=\textwidth]{figures/2021-03-09/sinQf_1754.pdf}
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) vs leapfrog step.}%
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.31\textwidth}
+      % \includegraphics[width=\textwidth]{figures/hwf.pdf}
+      \includegraphics[width=\textwidth]{figures/2021-03-09/hwf_1756.pdf}
+      \caption{\label{fig:hwf}The rescaled energy, \(\mathcal{H}-\sum\log\|\mathcal{J}\|\) vs leapfrog step.}
          %\(\mathcal{H} - \left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right|\) 
-      vs leapfrog step.}
    \end{subfigure}
    \hfill
-   \begin{subfigure}{0.31\textwidth}
-      \includegraphics[width=\textwidth]{figures/sinQf.pdf}
-      \caption{\label{fig:sinQf}Illustration of the error in the rescaled energy, \(\mathcal{Q}_{\mathbb{R}}\) vs
-      leapfrog step.}%
-      \end{subfigure}
    \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory.}
 \end{figure}
 %
@@ -614,48 +603,48 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 %
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.45\textwidth}
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2153_b2.pdf}
    \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.45\textwidth}
+   % \hfill
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2151_b3.pdf}
    \end{subfigure}
-   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+   \caption{\label{fig:autocorrbeta23}Plot of the estimated integrated autocorrelation time of the topological charge,
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
    (grey circles) and the trained model (pink squares)}
 \end{figure}
 %
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.45\textwidth}
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b4.pdf}
    \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.45\textwidth}
+   % \hfill
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b5.pdf}
    \end{subfigure}
-   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+   \caption{\label{fig:autocorrbeta45}Plot of the estimated integrated autocorrelation time of the topological charge,
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
    (grey circles) and the trained model (pink squares)}
 \end{figure}
 %
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.45\textwidth}
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b6.pdf}
    \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.45\textwidth}
+   % \hfill
+   \begin{subfigure}{0.4\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b7.pdf}
    \end{subfigure}
-   \caption{\label{fig:autocorrbeta2}Plot of the estimated integrated autocorrelation time of the topological charge,
+   \caption{\label{fig:autocorrbeta67}Plot of the estimated integrated autocorrelation time of the topological charge,
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
    (grey circles) and the trained model (pink squares)}
 \end{figure}
 %
 %
-\section{\label{sec:algorithm}Training Algorithm}
+\subsection{\label{subsec:algorithm}Training Algorithm}
 %
 \begin{algorithm}[htpb]%
    % \SetAlgoSkip{bigskip}%
@@ -675,7 +664,7 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
    \DontPrintSemicolon%
    \caption{\label{alg:training_algorithm}Training procedure}%
    \Input{%
-      {}\\
+      % {}\\
       \begin{enumerate}
          \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
@@ -684,28 +673,28 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
          \item \texttt{Annealing schedule}, \({\{\beta_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
          \item \texttt{Batch of initial states}, \(x\)
       \end{enumerate}
-   };%
+   }%
    \texttt{Initialize weights} \(\theta\)\;
-   {}\;
+   % {}\;
    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
-      {}\;
+      % {}\;
       \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
       \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
       \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
       \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
-      {}\;
+      % {}\;
       \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
          \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
-      }\;
+      }
       \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
       \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
-      {}\;
+      % {}\;
       \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
       A(\xi^{\prime}|\xi))\)\;
-      {}\;
+      % {}\;
       \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
-      {}\;
+      % {}\;
       \texttt{assign:} \(x_{t+1} \leftarrow
       \begin{cases}
          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
