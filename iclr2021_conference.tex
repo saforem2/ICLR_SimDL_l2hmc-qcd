@@ -73,124 +73,89 @@
    significantly reducing the computational cost required to generate independent gauge configurations.
 \end{abstract}
 
-\section{\label{sec:introduction}Introduction}
-\color{red}{TODO:\@ Complete introduction}\color{black}
+% \section{\label{sec:introduction}Introduction}
+% \color{red}{TODO:\@ Complete introduction}\color{black}
 %
 \section{\label{sec:main_contributions}Main Contributions}
 \begin{enumerate}
-   \item We propose a generalized version of the L2HMC algorithm that allows for different networks with different step
-      sizes for each distinct leapfrog step. We represent this generalization by carrying a discrete index \(k\) through
-      the augmented leapfrog equations, indicating that these functions are allowed to vary.
+   \item We propose a generalized version of the L2HMC algorithm that uses different networks (with different step
+      sizes) for each distinct leapfrog step.
+      %
+      We represent this generalization by carrying a discrete index \(k\) through the augmented leapfrog equations,
+      (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that these functions are allowed to
+      vary.
+      %
    \item We introduce a topological charge metric \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)\) defined as
       the squared difference between the initial and proposed configurations
       \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) = {\left(\mathcal{Q}_{\mathbb{R}}^{\prime} -
-      \mathcal{Q}_{\mathbb{R}}\right)}^{2}\)
-   \item We introduce an \emph{annealing schedule} \({\{\beta\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1},
-      \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\) and \(\beta_{t+1} - \beta_{t} \ll
-         1\).
+      \mathcal{Q}_{\mathbb{R}}\right)}^{2}\).
+      %
+      We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
+      the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\) introduced in the augmented leapfrog
+      updates (\Secref{sec:l2hmc})
+      %
+   \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\beta\}}_{t=0}^{N} =
+      \{\beta_{0}, \beta_{1}, \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\) and
+      \(\beta_{t+1} - \beta_{t} \ll 1\) that is slowly varied during training (and removed entirely during inference)
+      that allows our sampler to explore previously inaccessible regions of the phase space.
+      %
+   \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
+      \(N_{x}\times N_{t}\) lattice with periodic boundary conditions, and report a significant reduction in the
+
+      computational cost required to generate independent \emph{gauge configurations}.
+      %
    \item We use the \emph{integrated autocorrelation time} of the topological charge
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) as a metric for determining the efficiency of our trained sampler.
+      %
       The improvement for the trained model compared to generic HMC can be seen in \Figref{fig:autocorr_vs_beta}.
+      %
    \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
       constants, and show that our trained model consistently outperforms traditional HMC.\@
+      %
+      These results can be seen in \Secref{subsec:autocorr_plots}.
 \end{enumerate}
 %
 \section{\label{sec:related_work}Related Work:}
-Related work:
-\citep{albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,li2020neural,boyda2020sampling,kanwar2020equivariant,%
-toth2019hamiltonian,hoffman2019neutra,albergo2019flow,neklyudov2020involutive,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,wilson74c,%
-tanaka2017towards,schaefer2009investigating,cossu2018testing,rezende2020normalizing}
+Recently, there has been a significant interest in applying probabilistic programming techniques with
+autodifferentiation capabilities to develop more efficient simulations.
+%
+% Due to the widespread applicability of these techniques, as well as their central importance to virtually all scientific
+% disciplines,
+% scientific disciplines, there exist significant opportunities for interdisciplinary researc
+% , there are ample opportunities for interdisciplinary research
+% groups with cross-cutting applications.
+
+% Because the use of Bayesian inference/generative modeling is of great importance across virtually all scientific
+% disciplines,
+% optimized simulations for a variety of scientific disciplines.
+%
+In particular, following the development of the RealNVP \citep{dinhRealNVP} architecture, there has been an explosion of
+different proposals that aim to take advantage of the invertible network architecture.
+%
+Because of the enormous computational burden faced by generative techniques in lattice gauge theory, there have been
+multiple works
+\citep{%
+   albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
+   neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
+   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,schaefer2009investigating,
+   cossu2018testing,rezende2020normalizing%
+},%
+that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field theories.
+% timprove existing sampling techniques by introducing some trainable architecture that encourages various
+% properties.
+%
+% Of particular interest and relevance to our work, we
+% proposed methods that take advantage of the invertible network architecture to construct various models (e.g. VAE, GAN,
+% RBM,
+% etc.)
+% Related work:
+% \citep{albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,li2020neural,boyda2020sampling,kanwar2020equivariant,%
+% toth2019hamiltonian,hoffman2019neutra,albergo2019flow,neklyudov2020involutive,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,wilson74c,%
+% tanaka2017towards,schaefer2009investigating,cossu2018testing,rezende2020normalizing}
 %
 \section{\label{sec:background}Background}
-\subsection{\label{sec:hamiltonian_dynamics}Hamiltonian Monte Carlo}
-%
-The Hamiltonian Monte Carlo (HMC) algorithm is a widely used technique that allows us to sample from an analytically
-known target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)},
-x^{(1)}, \ldots, x^{(n)}\}\), such that \(x^{(n)}\sim p(x)\) in the limit
-\(n\rightarrow\infty\).
-%
-For our purposes, we assume that our target distribution can be expressed as a Boltzmann distribution, \(p(x) =
-\tfrac{1}{\mathcal{Z}} e^{-S(x)}\propto e^{-S(x)}\), where \(S(x)\) is the \emph{action} of our
-theory, and \(\mathcal{Z}\) is often referred to as the \emph{partition function}, which ensures our target distribution
-is correctly normalized to unity.
-%
-In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
-distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
-%
-Our joint distribution can then be written as
-%
-\begin{equation}
-   p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
-\end{equation}
-%
-where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
-%
-Notably, this system obeys Hamilton's equations
-%
-\begin{equation}
-   \dot{x} = \frac{\partial\mathcal{H}}{\partial v},\quad \dot{v} = -\frac{\partial\mathcal{H}}{\partial x}
-\end{equation}
-%
-which can be integrated using the \emph{leapfrog integrator} along iso-probability contours defined by \(\mathcal{H} =
-\text{const}\).
-%
-Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
-proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
-%
-\begin{enumerate}
-   \item Half-step momentum update: \hspace{12pt}\(%
-      v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
-   \)
-      %
-      % \begin{equation}
-      %    v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
-      %    \label{eq:original_momentum_update}
-      % \end{equation}
-      %
-   \item Full-step position update: \hspace{36pt}\(%
-      x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
-   \)
-      %
-      % \begin{equation}
-      %    x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
-      %    \label{eq:original_position_update}
-      % \end{equation}
-      %
-   \item Half-step momentum update:
-      \hspace{18pt} \(%
-         v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
-   \)
-      %
-      % \begin{equation}
-      %    v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
-      % \end{equation}
-      %
-\end{enumerate}
-%
-We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon\cdot N_{\mathrm{LF}}\) by
-performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence.
-%
-At the end of our trajectory, we either accept or reject the proposal configuration according to the Metropolis-Hastings
-acceptance criteria,
-%
-\begin{equation}
-   x_{i+1} =
-   \begin{cases}%
-      x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)), \quad\text{where}\quad %
-         A(\xi^{\prime}|\xi) = \min\left\{%
-            1, \frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial{\xi^{\prime}}}{\partial\xi^{T}}\right|%
-         \right\}.
-   \end{cases}
-   \label{eq:mhcriteria}
-\end{equation}
-%
-% where
-%
-The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
-\(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
-%
-%%%%%%%%%%%%%%%%
+We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
+\Secref{sec:HMC}.
 %
 \subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
 %
@@ -388,8 +353,12 @@ our progress through the training phase, which can be written explicitly as
 
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
 %
-\textbf{Note:} We define the lattice gauge theory in terms of the link variables \(-\pi \leq \varphi_{\mu}(x) < \pi\), which are identified as
-being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi_{\mu}(x) \Longleftrightarrow x\).
+\textbf{Note:} We define the lattice gauge theory in terms of the link variables \(-\pi \leq \varphi_{\mu}(x) < \pi\),
+which we explicitly choose to identify as the physical (position) variable \(x\) in \Secref{sec:l2hmc}, i.e.\ 
+\begin{equation}
+   \varphi_{\mu}(x)\Longleftrightarrow x.
+\end{equation}
+% being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi_{\mu}(x) \Longleftrightarrow x\).
 %
 
 \textbf{Notation:} 
@@ -413,9 +382,8 @@ being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi
       where \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the
       continuum limit.
    \item We define two physical quantities, namely the  \emph{real-valued} topological charge,
-      \(\mathcal{Q}_{\mathbb{R}}\in \mathbb{R}\), and the\emph{integer-valued} topological charge,
+      \(\mathcal{Q}_{\mathbb{R}}\in \mathbb{R}\), and the \emph{integer-valued} topological charge,
       \(\mathcal{Q}_{\mathbb{Z}}\in \mathbb{Z}\) given by
-      % \(\mathcal{Q}_{\mathb{Z}}\), and the \emph{real-valued} topological charge \(\mathcal{Q}_{\mathbb{R}}\), given by
       \begin{align}
          \mathcal{Q}_{\mathbb{R}}(\varphi)
             &= \frac{1}{2\pi}\sum_{P}\sin(\varphi_{P})\label{eq:qr}, \quad\quad
@@ -427,30 +395,26 @@ being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi
       % \(\left\lfloor\varphi_{P}\right\rfloor\approx\sin\varphi_{P}\).
 \end{enumerate}
 
-We consider a two-dimensional \(U(1)\) lattice gauge theory defined on an \(N_{x}\times N_{t}\) lattice with periodic
-boundary conditions.
-%
-Our target distribution \(p(\varphi)\) is defined in terms of the Wilson action as
-%
-\begin{equation}
-   p(\varphi)\propto e^{\beta_{t} S(\varphi)}, \quad\text{where}\quad S(\varphi) = \sum_{P}1 - \cos(\varphi_{P}(x)).
-   \label{eq:wilson_action}
-\end{equation}
-%
-Here, \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant of the theory, and \(\beta\rightarrow\infty\) gives the
-continuum limit.
-%
-Here, \(\varphi_{P}\) denotes the sum of the link variables around the elementary plaquette,
-%
-\begin{equation}
-   \varphi_{P} = \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu}) - \varphi_{\nu}(x) \in[0,4\pi]
-\end{equation}
-%
-as shown in \Figref{fig:plaquette}.
-%
-Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms of the link variables \(\varphi_{\mu}(x)
-\in \left[-\pi, \pi\right]\)
-%
+% We consider a two-dimensional \(U(1)\) lattice gauge theory defined on an \(N_{x}\times N_{t}\) lattice with periodic
+% boundary conditions.
+% %
+% Our target distribution \(p(\varphi)\) is defined in terms of the Wilson action as
+% %
+% %
+% Here, \(\beta = 2/g_{0}^{2}\) is the inverse coupling constant of the theory, and \(\beta\rightarrow\infty\) gives the
+% continuum limit.
+% %
+% Here, \(\varphi_{P}\) denotes the sum of the link variables around the elementary plaquette,
+% %
+% \begin{equation}
+%    \varphi_{P} = \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu}) - \varphi_{\nu}(x) \in[0,4\pi]
+% \end{equation}
+% %
+% as shown in \Figref{fig:plaquette}.
+% %
+% Note that we have written the Wilson action (\Eqref{eq:wilson_action}) in terms of the link variables \(\varphi_{\mu}(x)
+% \in \left[-\pi, \pi\right]\)
+% %
 %
 \begin{figure}[htpb]
     \centering
@@ -518,6 +482,95 @@ doe or the united states government.
 \appendix
 \section{Appendix}
 %
+\section{\label{sec:HMC}Hamiltonian Monte Carlo}
+%
+The Hamiltonian Monte Carlo (HMC) algorithm is a widely used technique that allows us to sample from an analytically
+known target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)},
+x^{(1)}, \ldots, x^{(n)}\}\), such that \(x^{(n)}\sim p(x)\) in the limit
+\(n\rightarrow\infty\).
+%
+For our purposes, we assume that our target distribution can be expressed as a Boltzmann distribution, \(p(x) =
+\tfrac{1}{\mathcal{Z}} e^{-S(x)}\propto e^{-S(x)}\), where \(S(x)\) is the \emph{action} of our
+theory, and \(\mathcal{Z}\) is often referred to as the \emph{partition function}, which ensures our target distribution
+is correctly normalized to unity.
+%
+In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
+distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
+%
+Our joint distribution can then be written as
+%
+\begin{equation}
+   p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
+\end{equation}
+%
+where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
+%
+Notably, this system obeys Hamilton's equations
+%
+\begin{equation}
+   \dot{x} = \frac{\partial\mathcal{H}}{\partial v},\quad \dot{v} = -\frac{\partial\mathcal{H}}{\partial x}
+\end{equation}
+%
+which can be integrated using the \emph{leapfrog integrator} along iso-probability contours defined by \(\mathcal{H} =
+\text{const}\).
+%
+Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
+proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
+%
+\begin{enumerate}
+   \item Half-step momentum update: \hspace{12pt}\(%
+      v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
+   \)
+      %
+      % \begin{equation}
+      %    v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
+      %    \label{eq:original_momentum_update}
+      % \end{equation}
+      %
+   \item Full-step position update: \hspace{36pt}\(%
+      x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
+   \)
+      %
+      % \begin{equation}
+      %    x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
+      %    \label{eq:original_position_update}
+      % \end{equation}
+      %
+   \item Half-step momentum update:
+      \hspace{18pt} \(%
+         v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
+   \)
+      %
+      % \begin{equation}
+      %    v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
+      % \end{equation}
+      %
+\end{enumerate}
+%
+We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon\cdot N_{\mathrm{LF}}\) by
+performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence.
+%
+At the end of our trajectory, we either accept or reject the proposal configuration according to the Metropolis-Hastings
+acceptance criteria,
+%
+\begin{equation}
+   x_{i+1} =
+   \begin{cases}%
+      x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
+      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)), \quad\text{where}\quad %
+         A(\xi^{\prime}|\xi) = \min\left\{%
+            1, \frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial{\xi^{\prime}}}{\partial\xi^{T}}\right|%
+         \right\}.
+   \end{cases}
+   \label{eq:mhcriteria}
+\end{equation}
+%
+% where
+%
+The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
+\(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
+%
+
 \section{\label{sec:extra_figures}Extra Figures}
 \begin{figure}[htpb]
    \centering
