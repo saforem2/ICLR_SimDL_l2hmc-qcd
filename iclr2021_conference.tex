@@ -81,35 +81,39 @@
    \item We propose a generalized version of the L2HMC algorithm that uses different networks (with different step
       sizes) for each distinct leapfrog step.
       %
-      We represent this generalization by carrying a discrete index \(k\) through the augmented leapfrog equations,
-      (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that these functions are allowed to
-      vary.
+      We represent this generalization by carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}\) through the
+      augmented leapfrog equations, (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that
+      these functions are allowed to vary.
       %
-   \item We propose a modified loss function, defined in terms of the topological charge metric,
+   \item We propose a modified loss function, defined in terms of the topological charge metric
+      \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)\),
       %
       \begin{equation}
          \mathcal{L}_{\theta}{\left[\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right]} =%
-         \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime},\xi)}{a^{2}}
+         \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime},\xi)}{a^{2}},
       \end{equation}
       %
       where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv
-      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}\), and \(\mathcal{Q}_{\mathbb{R}}\)
-      is the \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}.
+      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}\), and
+      \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) is the \emph{real-valued topological charge}, defined in
+      \Secref{sec:lattice_gauge_theory}.
       %
       We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
-      the weights parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\) introduced in
-      the augmented leapfrog updates in \Secref{sec:l2hmc}.
+      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\)
+      introduced in the augmented leapfrog updates in \Secref{sec:l2hmc}.
       %
-   \item During training we maintain a buffer of \(M = 2048\) (``batch size'') chains which are updated in parallel.
+   \item During training we maintain a buffer of \(M = 2048\) chains (``batch size'') which are updated in parallel.
       %
       Expectation values of physical quantities are calculated as averages over these \(M\) chains (after dropping the
       first \(\sim25\%\) of configurations for thermalization), and we use blocked jackknife resampling to compute
       the error estimates.
       %
    \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\beta\}}_{t=0}^{N} =
-      \{\beta_{0}, \beta_{1}, \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\) and
-      \(\beta_{t+1} - \beta_{t} \ll 1\) that is slowly varied during training (and removed entirely during inference)
-      that allows our sampler to explore previously inaccessible regions of the phase space.
+      \{\beta_{0}, \beta_{1}, \ldots \beta_{N}\}\), with \(\beta_{0} < \beta_{1} < \cdots < \beta_{N}\), with
+      \(|\beta_{t}|<1\) and \(\beta_{t+1} - \beta_{t} \ll 1\) that is slowly varied during training (and removed
+      entirely during inference) that scales the potential energy function in our target distribution, \(p_{t}(x)\propto
+      e^{\beta_{t}S(x)}\), that allows our sampler to explore previously inaccessible regions of the phase space by
+      shrinking the height of the various energy barriers separating isolated modes.
       %
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
       \(N_{x}\times N_{t}\) lattice with periodic boundary conditions, and report a significant reduction in the
@@ -581,24 +585,25 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
          %\(\mathcal{H} - \left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right|\) 
    \end{subfigure}
    \hfill
-   \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory.}
+   \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory for the
+   trained sampler.}
 \end{figure}
 %
 \begin{figure}[htpb]
    \centering
    \begin{subfigure}{\linewidth}
-      \includegraphics[width=\linewidth]{figures/autocorr_vs_mc_step1.pdf}
+      \includegraphics[width=\linewidth]{figures/autocorr_vs_mc_step.pdf}
       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
       MC step for both generic HMC and the trained model, for \(\beta = 2, 3, \ldots, 7\) arranged from left to right.}
    % \end{subfigure}
    % \begin{subfigure}{\textwidth}
-      \includegraphics[width=\linewidth]{figures/autocorr_vs_traj_len1.pdf}
+      \includegraphics[width=\linewidth]{figures/autocorr_vs_traj_len.pdf}
       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
       \(\lambda\) for both generic HMC and the trained model.}
    \end{subfigure}
 \end{figure}
 %
-%
+
 \subsection{\label{subsec:autocorr_plots}Autocorrelation Plots}
 %
 \begin{figure}[htpb]
