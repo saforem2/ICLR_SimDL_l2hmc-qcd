@@ -76,6 +76,19 @@
 
 % \section{\label{sec:introduction}Introduction}
 % \color{red}{TODO:\@ Complete introduction}\color{black}
+\section{TODO}
+\begin{enumerate}
+   \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
+      step in our trajectory.
+   \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
+   \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
+   \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
+   \item Remove \Eqref{eq:wilsonaction}, combine with \Eqref{eq:annealingdistribution} and move inline
+   \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
+      difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
+   \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
+      \Secref{sec:l2hmc}.
+\end{enumerate}
 %
 \section{\label{sec:main_contributions}Main Contributions}
 \begin{enumerate}
@@ -371,6 +384,7 @@ our progress through the training phase, which can be written explicitly as
 %
 \begin{equation}
    p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N.
+   \label{eq:annealingdistribution}
 \end{equation}
 %
 
@@ -396,6 +410,7 @@ We can write our target distribution \(p_{t}(\varphi)\) in terms of the Wilson a
 %
 \begin{equation}
    p_{t}(\varphi) = e^{-\gamma_{t}\beta\cdot S(\varphi)},\quad\text{with}\quad \beta\cdot S(\varphi) = \sum_{P}1 - \cos(\varphi_{P})
+   \label{eq:wilsonaction}
 \end{equation}
 %
 and \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu})
