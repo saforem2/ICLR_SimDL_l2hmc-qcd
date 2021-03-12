@@ -20,6 +20,7 @@
 \usepackage{dcolumn}% Align table columns on decimal point
 \usepackage{bm}% bold math
 \usepackage{subcaption}
+\usepackage[normalem]{ulem}
 \usepackage[ruled, vlined,inoutnumbered,rightnl]{algorithm2e}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows}
@@ -82,27 +83,27 @@
 
 % \section{\label{sec:introduction}Introduction}
 % \color{red}{TODO:\@ Complete introduction}\color{black}
-\section{TODO}
-\begin{enumerate}
-   \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
-      step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
-   \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
-   \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
-   %\item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
-   \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
-      inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
-   \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
-      difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
-   \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
-      \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
-   \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
-      conv/fully-connected network.
-  \item Don't need to include details about annealing schedule (save space).
-  \item Instead of splitx figure, re-draw network diagram showing inputs/outputs and various layers. ``Generalized leapfrog''.
-  \item \textbf{``Leapfrog layer''}: Show network diagram for a single leapfrog layer, indicate that each leapfrog step uses a separate leapfrog layer, explain how "Full-step position update, etc." are a single leapfrog layer with  index \(k\).
-  
-\end{enumerate}
-%
+%\section{TODO}
+%\begin{enumerate}
+%   \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
+%      step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
+%   \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
+%   \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
+%   %\item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
+%   \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
+%      inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
+%   \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
+%      difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
+%   \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
+%      \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
+%   \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
+%      conv/fully-connected network.
+%  \item Don't need to include details about annealing schedule (save space).
+%  \item Instead of splitx figure, re-draw network diagram showing inputs/outputs and various layers. ``Generalized leapfrog''.
+%  \item \textbf{``Leapfrog layer''}: Show network diagram for a single leapfrog layer, indicate that each leapfrog step uses a separate leapfrog layer, explain how "Full-step position update, etc." are a single leapfrog layer with  index \(k\).
+%  
+%\end{enumerate}
+%%
 \section{\label{sec:introduction}Introduction}
 In \citet{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
 its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
@@ -184,25 +185,27 @@ This ability to mix between isolated modes of a multi-modal target distribution 
 \end{enumerate}
 %
 \section{\label{sec:related_work}Related Work:}
-Recently, there has been a growing interest in applying generative machine learning techniques to help improve the efficiency and applicability of different scientific simulations.
+Recently, there has been a growing interest in applying generative machine learning techniques to build smarter, more efficient scientific simulations.
+%improve the efficiency applicability of different scientific simulations.
 %
 %Recently, there has been a significant interest in applying probabilistic programming techniques with
 %autodifferentiation capabilities to develop more efficient simulations.
 %\JCO{not sure what this means: probabilistic programming techniques}
 %
-In particular, following the development of the RealNVP \citep{dinhRealNVP} architecture, there has been an explosion of
-different proposals that aim to take advantage of the invertible network architecture.
+%Because of the enormous computational burden faced by generative techniques in lattice gauge theory, there have been
 %
-Because of the enormous computational burden faced by generative techniques in lattice gauge theory, there have been
-multiple works
+Following the development of the RealNVP \citep{dinhRealNVP} architecture, there have been many proposed techniques that aim to take advantage of its invertible structure.
+%
+In particular, simulations in lattice gauge theory and lattice QCD stand to benefit tremendously from this new approach, as evidenced by the rapidly-growing body of work in this direction 
 \citep{%
    albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
    neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
    hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,schaefer2009investigating,
    cossu2018testing,rezende2020normalizing%
-}, 
-that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field
-theories.\textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) rewrite}}
+}.
+
+%that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field
+%theories.\textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) rewrite}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:background}Background}
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
@@ -250,12 +253,22 @@ where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = 
 }, and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
 \Lambda^{\pm}_{k}\).
 %
+We include in \Figref{fig:network} an illustration of the network architecture used for the \(x\) update \Eqref{eq:new_position_update}.
+%
+\begin{figure}[htpb]
+   \centering
+   % \includegraphics[width=\textwidth]{figures/splitx10.pdf}
+   \includegraphics[width=\textwidth]{figures/updated_network3.pdf}
+   \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
+   %\caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
+   %transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
+\end{figure}
+
 Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
    To obtain the expression for the reverse direction, we can invert each of the
    \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}, \Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\) functions, and
    perform the updates in the opposite order.
-}%
-as:
+} as:
 %
 \begin{enumerate}
    \item Half-step momentum update:%
@@ -279,23 +292,16 @@ as:
    \)
 \end{enumerate}
 %
-Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
-introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially, as
-shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}. \textcolor{blue}{\(\ast\)}%
-\marginpar{\textcolor{blue}{\(\ast\) move splitx fig to appendix?}}
+Collectively, we refer to this series of updates as a single \emph{leapfrog layer}, which performs a single update \(\xi\rightarrow\xi^{\prime}\).
 %
-\begin{figure}[htpb]
-   \centering
-   % \includegraphics[width=\textwidth]{figures/splitx10.pdf}
-   \includegraphics[width=\textwidth]{figures/updated_network3.pdf}
-   \caption{\label{fig:network}Illustration of a single leapfrog layer used in the \(x\) update from the \Eqref{eq:new_position_update}.}
-   %\caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
-   %transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
-\end{figure}
+Note that in order to keep our update reversible, we've split the \(x\) update into two sub-updates by
+introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially.
+%as shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}. \textcolor{blue}{\(\ast\)}%
+%\marginpar{\textcolor{blue}{\(\ast\) move splitx fig to appendix?}}
+%
 %
 
-As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a
-Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
+As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
 However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
 \(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime}_{k}}{\partial
@@ -325,9 +331,13 @@ functions used in the \(x\) update, \Eqref{eq:new_position_update}.
 Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v)\), with \(x\in\mathbb{R}^{n}\),
 \(v\in\mathbb{R}^{n}\).
 %
-The network first passes each of the inputs \(x\), \(v\) through a dense layer.
+An illustration of the network architecture used can be seen in \Figref{fig:network}.
 %
-These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, i.e. \marginpar{a single ``leapfrog layer''}
+%These inputs are then passed through a \emph{leapfrog layer}, as shown in \Figref{fig:network}.
+%%
+Explicitly, the network first passes each of the inputs, \(x\), \(v\) through a dense layer.
+%
+These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, 
 %
 \begin{equation}
    z_{d} = \sigma(w^{T}_{d} z_{d-1} + b_{d-1}),\,%
@@ -354,56 +364,8 @@ where \(\alpha_{s}\), and \(\alpha_{q}\) are trainable scaling factors.
 The only requirement on the details of the network is that the dimensionality of the outputs \(s_{x}, t_{x}, q_{x}\)
 match the dimensionality of our physical variables \(x, v \in\mathbb{R}^{n}\).
 %
-%%%%%%%%%%%%%%
-
-Next, we introduce a loss function, \(%
-   \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-      \left[-\tfrac{1}{a^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
-   }
-\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.%
-\marginpar{Clean up; maybe move annealing schedule section into sentence here}
-%
-% \begin{equation}
-%    \ell_{\theta}{\left[\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right]} =
-%    -\frac{1}{a^{2}}\cdot{\delta(\xi^{\prime},\xi)\cdot A(\xi^{\prime}|\xi)},
-% \end{equation}
-% %
-% \begin{equation}
-%    \ell_{\theta}{\left[\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right]} =
-%    -\frac{\delta(\xi^{\prime},\xi)\cdot A(\xi^{\prime}|\xi)}{a^2},
-% \end{equation}
-% %
-% \(\delta(\xi, \xi^{\prime})\) is a suitably chosen \emph{metric function}, and \(a\) is a scaling factor.
-% %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:annealing}Annealing Schedule}
-%
-To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing schedule}
-during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots,
-\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
-\gamma_{t} \ll 1\).
-%
-Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
-with \(\gamma \equiv 1\) at the end of training and evaluate our trained model without this factor.
-%
-Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the height of the energy barriers, making it
-easier for our sampler to explore previously inaccessible regions of the phase space.
-%
-In terms of this additional annealing schedule, our target distribution picks up an additional index \(t\) to represent
-our progress through the training phase, which can be written explicitly as %\(%
-   % p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N
-% \).
-\begin{equation}
-   p_{t}(x)\propto e^{-\gamma_{t} S(x)},\quad\text{for}\quad t=0, 1, \ldots, N
-   \label{eq:targetannealing}
-\end{equation}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
-%
-% Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
 %
 Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
 variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site
@@ -416,30 +378,62 @@ variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direc
 %
 % Our theory is defined in terms of the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\),
 %
-We can write our target distribution \(p_{t}(x)\) \Eqref{eq:targetannealing} in terms of the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\).\marginpar{awful sentence}
 %
-%\begin{equation}
-%   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S(x)},\quad\text{with}\quad \beta\cdot S(x) = \sum_{P}1 - \cos(x_{P})
-%   \label{eq:wilsonaction}
-%\end{equation}
+We can write our target distribution in terms of the Wilson action \(S_{\beta}(x)\) as
 %
-where \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
+\begin{equation}
+   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta\cdot \sum_{P}1 - \cos(x_{P})
+   \label{eq:wilsonaction}
+\end{equation}
+%
+where (\(1\).) \(\gamma_{t}\) is a scaling factor (\(\|\gamma_{t}\|<1\)) from our annealing schedule (\Secref{sec:annealing}), and (\(2\).) \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
 variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}.
 %
-Here, \(\beta = 2 / g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the continuum
-limit of the theory. 
+Here, \(\beta = 2 / g_{0}^{2}\) is a coupling constant and \(\beta\rightarrow\infty\) recovers the continuum limit of the theory. 
 %
-We consider two physical quantities of interest, namely the \emph{real} and \emph{integer} valued \emph{topological
-charge}, (\(\mathcal{Q}_{\mathbb{R}} \in \mathbb{R}\), and \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), respectively)
-defined as
+
+Physically, each lattice configuration can be characterized by its topological charge, \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\) defined as
+%We consider two physical quantities of interest, namely the \emph{real} and \emph{integer} valued \emph{topological
+%charge}, (\(\mathcal{Q}_{\mathbb{R}} \in \mathbb{R}\), and \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), respectively)
+%defined as
 %
 \begin{equation*}
-   \mathcal{Q}_{\mathbb{R}}(x) 
-   \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}),\quad%
+   %\mathcal{Q}_{\mathbb{R}}(x) 
+   %\equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}),\quad%
       \mathcal{Q}_{\mathbb{Z}}(x) \equiv \frac{1}{2\pi}\sum_{P}\left\lfloor x_{P}\right\rfloor,
    \quad\text{where}\quad \left\lfloor x_{P}\right\rfloor = x_{P} -
-   2\pi\left\lfloor\frac{x_{P}+\pi}{2\pi}\right\rfloor
+   2\pi\left\lfloor\frac{x_{P}+\pi}{2\pi}\right\rfloor.
+   \label{eq:intcharge}
 \end{equation*}
+%
+Current methods are severely limited in their ability to mix between different topologies, a phenomenon known as topological freezing.
+%
+Because of this, we wish to construct a loss function that encourages our sampler to explore different topological sectors.
+%
+In order to do so, we introduce a continuous version of the topological charge, \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) by replacing the projection in \Eqref{eq:intcharge} as:
+%
+\begin{equation}
+    \mathcal{Q}_{\mathbb{R}} \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}).
+    \label{eq:sincharge}
+\end{equation}
+%
+This quantity has the advantage of being real-valued to help prevent numerical instability during training.
+%
+Our loss function is then defined as
+%
+\begin{equation}
+   \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
+      \left[-\tfrac{1}{\ell^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
+   }
+\end{equation}
+%
+where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) - \mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
+%\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.}}%
+%In order to calculate physical quantities, we perform analyses at some finite lattice spacing \(a\), and draw conclusions by extrapolating our results to the continuum limit (\(a\rightarrow 0\)).
+%
+%Unfortunately, as we decrease the lattice spacing, HMC is known to perform poorly at sampling from different values of \(\mathcal{Q}_{\mathbb{Z}}\)
+%When attempting to generate configurations on inc
+%This quantity is known to 
 %
 % \begin{figure}[htpb]
 %     \centering
@@ -507,19 +501,18 @@ defined as
    %(energy density for the physics we are interested in) 
    \begin{subfigure}{0.31\textwidth}
       \includegraphics[width=\textwidth]{figures/plaqsf_1758.pdf}
-      \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) vs
-      leapfrog step.}
+      \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at intermediate leapfrog layers.}
    \end{subfigure}
    \hfill
    \begin{subfigure}{0.31\textwidth}
       \includegraphics[width=\textwidth]{figures/sinQf_1755.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) vs leapfrog step.}%
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate leapfrog layers.}%
    \end{subfigure}
    %
    \hfill
    \begin{subfigure}{0.31\textwidth}
       \includegraphics[width=\textwidth]{figures/extras/hwf.pdf}
-      \caption{Log probability of the model (includes both \(x\) and \(v\)}%
+      \caption{The readjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\), of the model at intermediate leapfrog layers.}
    \end{subfigure}
    
    % \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory for the
@@ -528,7 +521,7 @@ defined as
 %
 
 \subsubsection*{Acknowledgments}
-This research used resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE office of science user
+This research was performed on ThetaGPU using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE office of science user
 facility supported under contract DE\_AC02--06CH11357.%
 %
 This work describes objective technical results and analysis.
@@ -601,7 +594,29 @@ acceptance criteria,
 The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
 %
-\subsection{\label{subsec:algorithm}Training Algorithm}
+\section{\label{sec:annealing}Annealing Schedule}
+%
+To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing schedule}
+during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots,
+\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
+\gamma_{t} \ll 1\).
+%
+Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
+with \(\gamma \equiv 1\) at the end of training and evaluate our trained model without this factor.
+%
+Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the height of the energy barriers, making it
+easier for our sampler to explore previously inaccessible regions of the phase space.
+%
+In terms of this additional annealing schedule, our target distribution picks up an additional index \(t\) to represent
+our progress through the training phase, which can be written explicitly as %\(%
+   % p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N
+% \).
+\begin{equation}
+   p_{t}(x)\propto e^{-\gamma_{t} S(x)},\quad\text{for}\quad t=0, 1, \ldots, N
+   \label{eq:targetannealing}
+\end{equation}
+%
+\section{\label{sec:algorithm}Training Algorithm}
 %
 \begin{algorithm}[htpb]%
    % \SetAlgoSkip{bigskip}%
