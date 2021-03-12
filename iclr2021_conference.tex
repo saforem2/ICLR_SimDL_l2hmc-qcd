@@ -79,15 +79,16 @@
 \section{TODO}
 \begin{enumerate}
    \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
-      step in our trajectory.
+      step in our trajectory \textcolor{blue}{\(\star\)}. \marginpar{\textcolor{blue}{\(\star\) WIP}}
    \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
    \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
    \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
-   \item Remove \Eqref{eq:wilsonaction}, combine with \Eqref{eq:annealingdistribution} and move inline
+   \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
+      inline. \textcolor{blue}{\(\star\)}\marginpar{\textcolor{blue}{\(\star\) WIP}}
    \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
       difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
    \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
-      \Secref{sec:l2hmc}.
+      \Secref{sec:l2hmc}.\textcolor{blue}{\(\star\)}\marginpar{\textcolor{blue}{\(\star\) WIP}}
    \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
       conv/fully-connected network.
 \end{enumerate}
@@ -118,48 +119,54 @@
       the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\)
       introduced in the augmented leapfrog updates in \Secref{sec:l2hmc}.
       %
-   \item During training we maintain a buffer of \(M = 2048\) chains (``batch size'') which are updated in parallel.
-      %
-      Expectation values of physical quantities are calculated as averages over these \(M\) chains (after dropping the
-      first \(\sim25\%\) of configurations for thermalization), and we use blocked jackknife resampling to compute
-      the error estimates.
-      %
-   \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing_schedule}) \({\{\gamma\}}_{t=0}^{N} =
-      \{\gamma_{0}, \gamma_{1}, \ldots \gamma_{N}\}\), with \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N}\), with
-      \(|\gamma_{t}|<1\) and \(\gamma_{t+1} - \gamma_{t} \ll 1\) that is slowly varied during training (and removed
-      entirely during inference) that scales the potential energy function in our target distribution, \(p_{t}(x)\propto
-      e^{\gamma_{t}S(x)}\), that allows our sampler to explore previously inaccessible regions of the phase space by
-      shrinking the height of the various energy barriers separating isolated modes.
-      %
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   % \item During training we maintain a buffer of \(M = 2048\) chains (``batch size'') which are updated in parallel.
+   %    %
+   %    Expectation values of physical quantities are calculated as averages over these \(M\) chains (after dropping the
+   %    first \(\sim25\%\) of configurations for thermalization), and we use blocked jackknife resampling to compute
+   %    the error estimates.
+   %    %
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   % \item We introduce an \emph{annealing schedule} (\Secref{sec:annealing})%
+   %    \({\{\gamma\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots \gamma_{N}\}\), with
+   %    \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N}\), with \(|\gamma_{t}|<1\) and \(\gamma_{t+1} - \gamma_{t} \ll 1\)
+   %    that is slowly varied during training (and removed entirely during inference) that scales the potential energy
+   %    function in our target distribution, \(p_{t}(x)\propto e^{\gamma_{t}S(x)}\), that allows our sampler to explore
+   %    previously inaccessible regions of the phase space by shrinking the height of the various energy barriers
+   %    separating isolated modes.
+   %    %
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
       \(N_{x}\times N_{t}\) lattice with periodic boundary conditions, and report a significant reduction in the
-      computational cost required to generate independent \emph{gauge configurations}.
+      computational cost, as measured by the \emph{integrated autocorrelation time} of the topological charge
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\).
       %
-   \item We use the \emph{integrated autocorrelation time} of the topological charge
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) as a metric for determining the efficiency of our trained sampler.
+      We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling constants
+      \(\beta\), and show that our trained model consistently outperforms traditional HMC (see
+      \Figref{fig:autocorr_vs_beta}).
       %
-      The improvement for the trained model compared to generic HMC can be seen in \Figref{fig:autocorr_vs_beta}.
+      % required to generate independent \emph{gauge configurations}.
       %
-   \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
-      constants \(\beta\), and show that our trained model consistently outperforms traditional HMC.\@
-      %
-      These results can be seen in \Secref{subsec:autocorr_plots}.
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   % \item We use the \emph{integrated autocorrelation time} of the topological charge
+   %    \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) as a metric for determining the efficiency of our trained sampler.
+   %    %
+   %    The improvement for the trained model compared to generic HMC can be seen in \Figref{fig:autocorr_vs_beta}.
+   %    %
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   % \item We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling
+   %    constants \(\beta\), and show that our trained model consistently outperforms traditional HMC.\@
+   %    %
+   %    These results can be seen in \Secref{subsec:autocorr_plots}.
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{enumerate}
 %
 \section{\label{sec:related_work}Related Work:}
 Recently, there has been a significant interest in applying probabilistic programming techniques with
 autodifferentiation capabilities to develop more efficient simulations.
 \JCO{not sure what this means: probabilistic programming techniques}
-%
-% Due to the widespread applicability of these techniques, as well as their central importance to virtually all scientific
-% disciplines,
-% scientific disciplines, there exist significant opportunities for interdisciplinary researc
-% , there are ample opportunities for interdisciplinary research
-% groups with cross-cutting applications.
-
-% Because the use of Bayesian inference/generative modeling is of great importance across virtually all scientific
-% disciplines,
-% optimized simulations for a variety of scientific disciplines.
 %
 In particular, following the development of the RealNVP \citep{dinhRealNVP} architecture, there has been an explosion of
 different proposals that aim to take advantage of the invertible network architecture.
@@ -173,47 +180,14 @@ multiple works
    cossu2018testing,rezende2020normalizing%
 }, 
 that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field theories.
-% timprove existing sampling techniques by introducing some trainable architecture that encourages various
-% properties.
-%
-% Of particular interest and relevance to our work, we
-% proposed methods that take advantage of the invertible network architecture to construct various models (e.g. VAE, GAN,
-% RBM,
-% etc.)
-% Related work:
-% \citep{albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,li2020neural,boyda2020sampling,kanwar2020equivariant,%
-% toth2019hamiltonian,hoffman2019neutra,albergo2019flow,neklyudov2020involutive,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,wilson74c,%
-% tanaka2017towards,schaefer2009investigating,cossu2018testing,rezende2020normalizing}
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:background}Background}
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
 \Secref{subsec:HMC}.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
 %
-% \textbf{Notable changes:}
-% \begin{enumerate}
-%    \item Compared to the original implementation, we carry throughought the updates a discrete index \(k = 0, 1, \ldots,
-%       N_{\mathrm{LF}}\), parameterizing the current leapfrog step.%
-%
-%       In doing so, we are free to consider the case where we use different update functions
-%       (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), with completely independent step sizes
-%       \(\varepsilon^{k}_{j}\), for each of the \(j = x, v\) updates.
-%    \item We propose a modified loss function, defined in terms of the topological charge metric,
-%       \begin{equation}
-%          \mathcal{L}_{\theta}{\left(\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right)} =
-%          \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)}{a^{2}}
-%       \end{equation}
-%       where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv%
-%       {(\mathcal{Q}_{\mathbb{R}}^{\prime} - \mathcal{Q}_{\mathbb{R}})}^{2}\) where \(\mathcal{Q}_{\mathbb{R}}\) is the
-%       \emph{topological charge}, defined in \Secref{sec:lattice_gauge_theory}
-%    \item We introduce an \emph{annealing schedule} during training so that our target distribution becomes
-%       \(p_{t}\propto e^{-\beta_{t}S(x)}\), for \({\{\beta\}}_{t=0}^{N} = \{\beta_{0}, \beta_{1},
-%       \ldots, \beta_{N}\}\), where \(t = 0, 1, \ldots, N\) enumerates our training step, \(\beta_{0} < \beta_{1} <
-%       \ldots < \beta_{N-1} < \beta_{N} = 1\), and \(\beta_{t+1} - \beta_{t} \ll 1\).
-% \end{enumerate}
-%
-
 In \citep{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
 its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
 distributions.
@@ -222,9 +196,10 @@ For example, the trained L2HMC sampler is shown to be capable of exploring regio
 inaccessible with traditional HMC.\@
 %
 Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
-distribution, a feature which is highly desirable for MCMC simulations of lattice gauge theory.
+distribution, a feature which is highly desirable for MCMC simulations of lattice gauge
+theory. \textcolor{blue}{\(\star\)}%
+\marginpar{\textcolor{blue}{\(\star\) combine w/ prev. sentence}}
 %
-
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
 p(d)\).
@@ -252,14 +227,20 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
          + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
-where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}), \tau(k))\), \(\zeta_{x_{k}} = (x_{k}, v_{k}, \tau(k))\) are a
-shorthand notation for the input passed to the respective \(s, t, q\) network functions\footnote{Note that \(\zeta_{x},
-\zeta_{v}\) are chosen to be subsets of the augmented state space that are independent of the variable being updated.}
-(2.) \(\tau(k) = {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1,
-\ldots, N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory, and (3.) we indicate the forward
-\(d=+1\) direction by the \(+\) superscript on \(\Gamma^{+}\), and \(\Lambda^{+}\).
+where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) are a shorthand
+notation for the input passed to the respective \(s, t, q\) network functions\footnote{Note that \(\zeta_{x},
+\zeta_{v}\) are subsets of the augmented state space, independent of the variable being updated.},
+and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k}, \Lambda^{\pm}_{k}\).
 %
-Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction) as:
+% (2.) \(\tau(k) = {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1,
+% \ldots, N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory,
+%
+Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
+   To obtain the expression for the reverse direction, we can invert each of the
+   \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}, \Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\) functions, and
+   perform the updates in the opposite order.
+}%
+as:
 %
 \begin{enumerate}
    \item Half-step momentum update:%
@@ -268,22 +249,22 @@ Using this notation, we can write the complete leapfrog update (in the forward \
    \)
    \item Full-step half-position update\footnote{By this we mean we are performing a complete update step that only
       updates half of the components of \(x\) determined by the mask \(\mt\) and its complement \(\mbart\).}:
-      \hspace{17pt} \(%
+      \hspace{14pt} \(%
          x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
    \)
    \item Full-step half-position update:%
-      \hspace{20pt} \(%
+      \hspace{21pt} \(%
          x^{\prime\prime}_{k} = \mbart\odot\Lambda^{+}_{k}(x^{\prime}_{k};\zeta_{x^{\prime}_{k}}) + \mt\odot x^{\prime}_{k}
    \)
    \item Half-step momentum update:%
-      \hspace{24pt} \(%
+      \hspace{25pt} \(%
          v^{\prime\prime}_{k} = \Gamma^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
    \)
 \end{enumerate}
 %
 Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
-introducing a binary mask \(m^{t} = \mt\odot\mathbbm{1} + \mbart\odot\mathbbm{1}\) that updates half of the components
-of \(x\) sequentially, as shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}.
+introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially, as
+shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}.
 %
 \begin{figure}[htpb]
    \centering
@@ -297,14 +278,10 @@ As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapf
 Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
 However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
-\(\xi\rightarrow\xi^{\prime}\), which can be easily computed as 
-%
-\begin{equation}
-   \left|\tfrac{\partial v^{\prime}_{k}}{\partial v_{k}}\right| 
-   = \exp{\left(\tfrac{\varepsilon^{k}_{v}}{2}s^{k}_{v}(\zeta_{v_{k}})\right)},\quad
-   \left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| 
-   = \exp{\left(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}})\right)}.
-\end{equation}
+\(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime}_{k}}{\partial
+   v_{k}}\right| = \exp{\left(\tfrac{1}{2}{\varepsilon^{k}_{v}\cdot s^{k}_{v}(\zeta_{v_{k}})}\right)}\),
+   \(\left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x}
+   s^{k}_{x}(\zeta_{x_{k}})\right)}\).
 %
 So far we've restricted our attention to the forward \((d=+1)\) update, however we can obtain the expressions for the
 reverse direction simply by inverting the two functions \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}\),
@@ -315,28 +292,31 @@ In order to perform the updates in the generalized leapfrog integrator, we need 
 %
 % We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
 %
-Without loss of generality\footnote{Because we maintain a separate network with identical architecture for evaluating
-the \(s, t, q\) functions in the momentum update \Eqref{eq:new_momentum_update}, the procedure is identical},
-we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the
-\(s_{x}, t_{x}, q_{x}\) functions used in the \(x\) update, \Eqref{eq:new_position_update}.
-% \(x_{k} = \Lambda^{+}(x;\zeta_{x})\).
+Without loss of generality\footnote{%
+   Because we maintain a separate network with identical architecture for evaluating the \(s_{v}, t_{v}, q_{v}\)
+   functions in \Eqref{eq:new_momentum_update}, the procedure is identical.
+},
 %
-
-Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v, \tau)\), with \(x\in\mathbb{R}^{n}\),
-\(v\in\mathbb{R}^{n}\), and \(\tau \in \mathbb{R}^{2}\).
+we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the \(s_{x}, t_{x}, q_{x}\)
+functions used in the \(x\) update, \Eqref{eq:new_position_update}.
 %
-The network splits these inputs and constructs the following intermediate variable (where \(\sigma\) denotes an
-arbitrary activation function)
+Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v)\), with \(x\in\mathbb{R}^{n}\),
+\(v\in\mathbb{R}^{n}\).
 %
-\begin{equation}
-   z_{1} = \sigma(w_{x}^{T}x + w_{v}^{T}v + w_{\tau}^{T}\tau + b).
-\end{equation}
+The network first passes each component of the input (\(x\), \(v\)) through a dense layer.
 %
-This intermediate variable \(z_{1}\) is then passed through another series of fully-connected layers,
+These outputs are then summed together before being passed through a subsequent stack of \(d\) hidden layers, i.e. 
 %
 \begin{equation}
-   z_{n} = \sigma(w_{n}^{T} z_{n-1} + b_{n}),\,\, z_{n-1}=\sigma(w_{n-2}^{T}z_{n-2} + b_{n-2}),\,\,%
-   \ldots,\,\, z_{2} = \sigma(w_{2}^{T} z_{1} + b_{2}).
+   z_{d} = \sigma(w^{T}_{d} z_{d-1} + b_{d-1}),\,%
+   z_{d-1} = \sigma(w_{d-1}^{T}z_{d-2}+b_{d-2}),\,%
+   \,\ldots,\,%
+   % \text{until: }
+   % z_{n}=\sigma(w^{T}_{n}z_{n-1} + b_{n}),%
+   % z_{n-1}=\sigma(w^{T}_{n-1}z_{n-2} + b_{n-1}),%
+   % \ldots,%
+   % z_{2} = \sigma(w^{T}_{2}z_{1} + b_{2}),
+   z_{1} \equiv \sigma(w_{x}^{T} x + w_{v}^{T} v + b)
 \end{equation}
 %
 The network outputs \(s_{x}, t_{x}, q_{x}\) are then defined in terms of this final hidden variable \(z_{n}\) as
@@ -354,26 +334,33 @@ match the dimensionality of our physical variables \(x, v \in\mathbb{R}^{n}\).
 %
 %%%%%%%%%%%%%%
 
-Next, we introduce a loss function
+Next, we introduce a loss function, \(%
+   \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
+      \left[-\tfrac{1}{a^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
+   }
+\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.
 %
-\begin{equation}
-   \mathcal{L}_{\theta}{\left(\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right)}
-      = -\frac{A(\xi^{\prime}|\xi)\cdot \delta(\xi, \xi^{\prime})}{a^{2}}
-\end{equation}
+% \begin{equation}
+%    \ell_{\theta}{\left[\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right]} =
+%    -\frac{1}{a^{2}}\cdot{\delta(\xi^{\prime},\xi)\cdot A(\xi^{\prime}|\xi)},
+% \end{equation}
+% %
+% \begin{equation}
+%    \ell_{\theta}{\left[\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right]} =
+%    -\frac{\delta(\xi^{\prime},\xi)\cdot A(\xi^{\prime}|\xi)}{a^2},
+% \end{equation}
+% %
+% \(\delta(\xi, \xi^{\prime})\) is a suitably chosen \emph{metric function}, and \(a\) is a scaling factor.
+% %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-where \(\delta(\xi, \xi^{\prime})\) is a suitably chosen \emph{metric function}, and \(a\) is a scaling factor.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\label{sec:annealing}Annealing Schedule}
 %
-\section{\label{sec:annealing_schedule}Annealing Schedule}
-%
-To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing
-schedule}, during the training phase
-%
-\begin{equation}
-   {\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots, \gamma_{N-1}, \gamma_{N}\},
-\end{equation}
-%
-where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} - \gamma_{t} \ll 1\), and \(N\) denotes the
-total number of training steps to be performed.
+To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing schedule}
+during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots,
+\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
+\gamma_{t} \ll 1\).
 %
 Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
 with \(\gamma \equiv 1\) at the end of training and evaluate our trained model without this factor.
@@ -382,41 +369,31 @@ Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the hei
 easier for our sampler to explore previously inaccessible regions of the phase space.
 %
 In terms of this additional annealing schedule, our target distribution picks up an additional index \(t\) to represent
-our progress through the training phase, which can be written explicitly as  
+our progress through the training phase, which can be written explicitly as  \(p_{t}(x)\propto e^{-\gamma_{t} S(x)},
+\quad\text{for}\quad t = 0, 1, \ldots, N\).
 %
-\begin{equation}
-   p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N.
-   \label{eq:annealingdistribution}
-\end{equation}
-%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
-%
-\textbf{Note:} We define the lattice gauge theory in terms of the link variables \(-\pi \leq \varphi_{\mu}(x) < \pi\),
-which we explicitly choose to identify as the physical (position) variable \(x\) in \Secref{sec:l2hmc}, i.e.\ 
-\begin{equation}
-   \varphi_{\mu}(x)\Longleftrightarrow x, \quad p(x)\Longleftrightarrow p(\varphi),\quad \text{etc.}.
-\end{equation}
-% being the \emph{position} variable \(x\) in \Secref{sec:l2hmc}, i.e.\@ \(\varphi_{\mu}(x) \Longleftrightarrow x\).
 %
 Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
 %
-Let \(U_{\mu}(x) = e^{i\varphi_{\mu}(x)} \in U(1)\), with \(\varphi_{\mu}(x) \in [-\pi,\pi]\) denote the \emph{link
-variables}, where \(\varphi_{\mu}(x)\) denotes the link oriented in the \(\hat{\mu}\)-direction located at the site
-\(x\).
+Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
+variables}, where \(x_{\mu}(n)\) denotes the link oriented in the \(\hat{\mu}\)-direction located at the site
+\(n\).
 %
 % We denote by \(P\) the \(1\times1\) elementary plaquette with counter-clockwise orientation as shown in
 % \Figref{fig:plaquette}.
 %
-We can write our target distribution \(p_{t}(\varphi)\) in terms of the Wilson action, \(S(\varphi)\) as
+We can write our target distribution \(p_{t}(x)\) in terms of the Wilson action, \(S_{\beta}(x) =
+\beta\cdot\sum_{P}1-\cos(x_{P})\) as
 %
 \begin{equation}
-   p_{t}(\varphi) = e^{-\gamma_{t}\beta\cdot S(\varphi)},\quad\text{with}\quad \beta\cdot S(\varphi) = \sum_{P}1 - \cos(\varphi_{P})
+   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S(x)},\quad\text{with}\quad \beta\cdot S(x) = \sum_{P}1 - \cos(x_{P})
    \label{eq:wilsonaction}
 \end{equation}
 %
-and \(\varphi_{P} \equiv \varphi_{\mu}(x) + \varphi_{\nu}(x+\hat{\mu}) - \varphi_{\mu}(x+\hat{\nu})
--\varphi_{\nu}(x)\) is the sum of the link variables around the \(1\times1\) elementary plaquette, as shown in
+and \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu})
+-x_{\nu}(n)\) is the sum of the link variables around the \(1\times1\) elementary plaquette, as shown in
 \Figref{fig:plaquette}.
 %
 Here, \(\beta = 2 / g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the continuum
@@ -427,57 +404,86 @@ charge}, (\(\mathcal{Q}_{\mathbb{R}} \in \mathbb{R}\), and \(\mathcal{Q}_{\mathb
 defined as
 %
 \begin{equation*}
-   \mathcal{Q}_{\mathbb{R}}(\varphi) 
-   \equiv \frac{1}{2\pi}\sum_{P}\sin(\varphi_{P}),\quad%
-      \mathcal{Q}_{\mathbb{Z}}(\varphi) \equiv \frac{1}{2\pi}\sum_{P}\left\lfloor\varphi_{P}\right\rfloor,
-   \quad\text{where}\quad \left\lfloor\varphi_{P}\right\rfloor = \varphi_{P} -
-   2\pi\left\lfloor\frac{\varphi_{P}+\pi}{2\pi}\right\rfloor
+   \mathcal{Q}_{\mathbb{R}}(x) 
+   \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}),\quad%
+      \mathcal{Q}_{\mathbb{Z}}(x) \equiv \frac{1}{2\pi}\sum_{P}\left\lfloor x_{P}\right\rfloor,
+   \quad\text{where}\quad \left\lfloor x_{P}\right\rfloor = x_{P} -
+   2\pi\left\lfloor\frac{x_{P}+\pi}{2\pi}\right\rfloor
 \end{equation*}
 %
-\begin{figure}[htpb]
-    \centering
-    \begin{tikzpicture}
-        \draw[->, black, very thick] (0, 0) -- (1, 0) node[anchor=north] {\(\varphi_{\mu}(x)\)};
-        \draw[black, very thick] (1, 0) -- (2, 0) {};
-        \draw[->, black, very thick] (2, 0) -- (2, 1) node[anchor=west]
-            {\(\varphi_{\nu}(x+\hat{\mu})\)};
-        \draw[black, very thick] (2, 1) -- (2, 2) {};
-        \draw[->, black, very thick] (2, 2) -- (1, 2) node[anchor=south] {\(-\varphi_{\mu}(x+\hat{\nu})\)};
-        \draw[black, very thick] (1, 2) -- (0, 2) {};
-        \draw[->, black, very thick] (0, 2) -- (0, 1) node[anchor=east] {\(-\varphi_{\nu}(x)\)};
-        \draw[black, very thick] (0, 1) -- (0, 0) {};
-        \filldraw [black] (0,0) circle (2pt) node[anchor=north east] {\(x\)};
-        % \draw[->, gray, very thick] (0.1, 0.1) -- (1.1, 0.1) {\(\mu\)};
-        % \draw[->, gray, thick] (0.5, 0.6) -- (1.5, 0.6) {$mu$};
-        % \draw[->, gray, thick] (0.6, 0.5) -- (0.6, 1.5) {\(\nu\)};
-        \draw[-, black, thick, dashed] (2, 0) -- (3, 0) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (0, 0) -- (-1, 0) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (0, 0) -- (0, -1) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (2, 2) -- (3, 2) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (2, 2) -- (2, 3) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (0, 2) -- (0, 3) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (0, 2) -- (-1, 2) node[anchor=west] {};
-        \draw[-, black, thick, dashed] (2, 0) -- (2, -1) node[anchor=west] {};
-    \end{tikzpicture}
-    \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
-\end{figure}
-\begin{equation}
-   U_{\mu}(x) = e^{i\varphi_{\mu}(x)}, \quad \varphi_{\mu}(x) \in \left[-\pi, \pi\right]
-\end{equation}
+% \begin{figure}[htpb]
+%     \centering
+%     \begin{tikzpicture}
+%         \draw[->, black, very thick] (0, 0) -- (1, 0) node[anchor=north] {\(x_{\mu}(n)\)};
+%         \draw[black, very thick] (1, 0) -- (2, 0) {};
+%         \draw[->, black, very thick] (2, 0) -- (2, 1) node[anchor=west]
+%             {\(x_{\nu}(n+\hat{\mu})\)};
+%         \draw[black, very thick] (2, 1) -- (2, 2) {};
+%         \draw[->, black, very thick] (2, 2) -- (1, 2) node[anchor=south] {\(-x_{\mu}(n+\hat{\nu})\)};
+%         \draw[black, very thick] (1, 2) -- (0, 2) {};
+%         \draw[->, black, very thick] (0, 2) -- (0, 1) node[anchor=east] {\(-x_{\nu}(n)\)};
+%         \draw[black, very thick] (0, 1) -- (0, 0) {};
+%         \filldraw [black] (0,0) circle (2pt) node[anchor=north east] {\(n\)};
+%         % \draw[->, gray, very thick] (0.1, 0.1) -- (1.1, 0.1) {\(\mu\)};
+%         % \draw[->, gray, thick] (0.5, 0.6) -- (1.5, 0.6) {$mu$};
+%         % \draw[->, gray, thick] (0.6, 0.5) -- (0.6, 1.5) {\(\nu\)};
+%         \draw[-, black, thick, dashed] (2, 0) -- (3, 0) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (0, 0) -- (-1, 0) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (0, 0) -- (0, -1) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (2, 2) -- (3, 2) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (2, 2) -- (2, 3) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (0, 2) -- (0, 3) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (0, 2) -- (-1, 2) node[anchor=west] {};
+%         \draw[-, black, thick, dashed] (2, 0) -- (2, -1) node[anchor=west] {};
+%     \end{tikzpicture}
+%     \caption{\label{fig:plaquette}Elementary plaquette, \(P\) on the lattice.}
+% \end{figure}
 %
+% \includegraphics[width=\textwidth]{figures/topological_freezing_blue_wide-1.png}
+% \includegraphics[width=\textwidth]{figures/topological_freezing_33.pdf}
+% \includegraphics[width=\textwidth]{figures/autocorr_vs_beta_blue_1504.pdf}
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/topological_freezing_green.pdf}
-      \caption{\label{fig:topological_freezing}Plot of the topological charge history \(\mathcal{Q}_{\mathbb{R}}\) vs MC
-      step for both generic HMC (black line), and the trained model (green line)}
+   \begin{subfigure}{0.22\textwidth}
+      \includegraphics[width=\textwidth]{figures/plaq_tikz.pdf}
+      \caption{\label{fig:plaquette}Plaquette, \(P\)}
+   \end{subfigure}
+   %
+   \hfill
+   %
+   \begin{subfigure}{0.37\textwidth}
+      \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue2.pdf}
+      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{R}}\) vs MC
+      step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
+   \end{subfigure}
+   %
+   \hfill
+   %
+   \begin{subfigure}{0.39\textwidth}
+      \includegraphics[width=\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
+      \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
+   different trajectory lengths.}
+         % for HMC (black dashed line), trained model (solid blue line).}
+   \end{subfigure}
+   % \end{figure}
+   %
+   \hfill
+   % \subsection{\label{subsec:extra_figures}Extra Figures}
+   % \begin{figure}[htpb]
+   % \centering
+   \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\textwidth]{figures/plaqsf_1758.pdf}
+      \caption{\label{fig:plaqsf}Error in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) vs
+      leapfrog step.}
    \end{subfigure}
    \hfill
-   \begin{subfigure}{0.48\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_vs_beta.pdf}
-      \caption{\label{fig:autocorr_vs_beta}Plot of the estimated integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\)
-      vs \(\beta\) for both generic HMC (black dashed line), and the trained model (solid green line).}
+   \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\textwidth]{figures/sinQf_1755.pdf}
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) vs leapfrog step.}%
    \end{subfigure}
+   % \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory for the
+   % trained sampler.}
 \end{figure}
 %
 
@@ -585,92 +591,74 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
 %
 
-\subsection{\label{subsec:extra_figures}Extra Figures}
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{0.31\textwidth}
-      % \includegraphics[width=\textwidth]{figures/plaqsf.pdf}
-      \includegraphics[width=\textwidth]{figures/2021-03-09/plaqsf_1758.pdf}
-      \caption{\label{fig:plaqsf}Error in the average plaquette, \(\langle\varphi_{P}-\varphi_{P}^{*}\rangle\) vs
-      leapfrog step.}
-   \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.31\textwidth}
-      % \includegraphics[width=\textwidth]{figures/sinQf.pdf}
-      \includegraphics[width=\textwidth]{figures/2021-03-09/sinQf_1755.pdf}
-      % \includegraphics[width=\textwidth]{figures/2021-03-09/sinQf_1754.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) vs leapfrog step.}%
-   \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.31\textwidth}
-      % \includegraphics[width=\textwidth]{figures/hwf.pdf}
-      \includegraphics[width=\textwidth]{figures/2021-03-09/hwf_1756.pdf}
-      \caption{\label{fig:hwf}The rescaled energy, \(\mathcal{H}-\sum\log\|\mathcal{J}\|\) vs leapfrog step.}
-         %\(\mathcal{H} - \left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right|\) 
-   \end{subfigure}
-   \hfill
-   \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory for the
-   trained sampler.}
-\end{figure}
+% \includegraphics[width=\textwidth]{figures/plaqsf.pdf}
+% \includegraphics[width=\textwidth]{figures/sinQf.pdf}
+% \includegraphics[width=\textwidth]{figures/2021-03-09/sinQf_1754.pdf}
+% \hfill
+% \begin{subfigure}{0.31\textwidth}
+%    % \includegraphics[width=\textwidth]{figures/hwf.pdf}
+%    \includegraphics[width=\textwidth]{figures/2021-03-09/hwf_1756.pdf}
+%    \caption{\label{fig:hwf}The rescaled energy, \(\mathcal{H}-\sum\log\|\mathcal{J}\|\) vs leapfrog step.}
+%       %\(\mathcal{H} - \left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right|\)
+% \end{subfigure}
+% \hfill
 %
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{\linewidth}
-      \includegraphics[width=\linewidth]{figures/autocorr_vs_mc_step.pdf}
-      \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
-      MC step for both generic HMC and the trained model, for \(\beta = 2, 3, \ldots, 7\) arranged from left to right.}
-   % \end{subfigure}
-   % \begin{subfigure}{\textwidth}
-      \includegraphics[width=\linewidth]{figures/autocorr_vs_traj_len.pdf}
-      \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
-      \(\lambda\) for both generic HMC and the trained model.}
-   \end{subfigure}
-\end{figure}
+% \begin{figure}[htpb]
+%    \centering
+%    \begin{subfigure}{\linewidth}
+%       \includegraphics[width=\linewidth]{figures/autocorr_vs_mc_step.pdf}
+%       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
+%       MC step for both generic HMC and the trained model, for \(\beta = 2, 3, \ldots, 7\) arranged from left to right.}
+%       \includegraphics[width=\linewidth]{figures/autocorr_vs_traj_len.pdf}
+%       \caption{Plot of the integrated autocorrelation time \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs
+%       \(\lambda\) for both generic HMC and the trained model.}
+%    \end{subfigure}
+% \end{figure}
 %
-
-\subsection{\label{subsec:autocorr_plots}Autocorrelation Plots}
 %
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2153_b2.pdf}
-   \end{subfigure}
-   % \hfill
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2151_b3.pdf}
-   \end{subfigure}
-   \caption{\label{fig:autocorrbeta23}Plot of the estimated integrated autocorrelation time of the topological charge,
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
-   (grey circles) and the trained model (pink squares)}
-\end{figure}
-%
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b4.pdf}
-   \end{subfigure}
-   % \hfill
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b5.pdf}
-   \end{subfigure}
-   \caption{\label{fig:autocorrbeta45}Plot of the estimated integrated autocorrelation time of the topological charge,
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
-   (grey circles) and the trained model (pink squares)}
-\end{figure}
-%
-\begin{figure}[htpb]
-   \centering
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b6.pdf}
-   \end{subfigure}
-   % \hfill
-   \begin{subfigure}{0.4\textwidth}
-      \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2152_b7.pdf}
-   \end{subfigure}
-   \caption{\label{fig:autocorrbeta67}Plot of the estimated integrated autocorrelation time of the topological charge,
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
-   (grey circles) and the trained model (pink squares)}
-\end{figure}
+% \subsection{\label{subsec:autocorr_plots}Autocorrelation Plots}
+% %
+% \begin{figure}[htpb]
+%    \centering
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2153_b2.pdf}
+%    \end{subfigure}
+%    % \hfill
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_plots_2021_03_09/autocorr_vs_traj_len_2151_b3.pdf}
+%    \end{subfigure}
+%    \caption{\label{fig:autocorrbeta23}Plot of the estimated integrated autocorrelation time of the topological charge,
+%       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+%    (grey circles) and the trained model (pink squares)}
+% \end{figure}
+% %
+% \begin{figure}[htpb]
+%    \centering
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_vs_traj_len_2152_b4.pdf}
+%    \end{subfigure}
+%    % \hfill
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_vs_traj_len_2152_b5.pdf}
+%    \end{subfigure}
+%    \caption{\label{fig:autocorrbeta45}Plot of the estimated integrated autocorrelation time of the topological charge,
+%       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+%    (grey circles) and the trained model (pink squares)}
+% \end{figure}
+% %
+% \begin{figure}[htpb]
+%    \centering
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_vs_traj_len_2152_b6.pdf}
+%    \end{subfigure}
+%    % \hfill
+%    \begin{subfigure}{0.4\textwidth}
+%       \includegraphics[width=\textwidth]{figures/autocorr_vs_traj_len_2152_b7.pdf}
+%    \end{subfigure}
+%    \caption{\label{fig:autocorrbeta67}Plot of the estimated integrated autocorrelation time of the topological charge,
+%       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\) vs MC Step (left), and trajectory length \(\lambda\) (right) for both HMC
+%    (grey circles) and the trained model (pink squares)}
+% \end{figure}
 %
 %
 \subsection{\label{subsec:algorithm}Training Algorithm}
