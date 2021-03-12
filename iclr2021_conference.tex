@@ -103,7 +103,17 @@
   
 \end{enumerate}
 %
-\section{\label{sec:main_contributions}Main Contributions}
+\section{\label{sec:introduction}Introduction}
+In \citet{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
+its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
+distributions.
+%
+In particular, they show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are typically inaccessible with traditional HMC.
+%
+This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory which suffer from the critical slowing down \citet{schaefer2009investigating} of the algorithm.
+
+%
+\subsection{\label{subsec:main_contributions}Main Contributions}
 \begin{enumerate}
    \item We propose a generalized version of the L2HMC algorithm that uses different networks (with different step
       sizes) for each distinct leapfrog step.
@@ -174,9 +184,11 @@
 \end{enumerate}
 %
 \section{\label{sec:related_work}Related Work:}
-Recently, there has been a significant interest in applying probabilistic programming techniques with
-autodifferentiation capabilities to develop more efficient simulations.
-\JCO{not sure what this means: probabilistic programming techniques}
+Recently, there has been a growing interest in applying generative machine learning techniques to help improve the efficiency and applicability of different scientific simulations.
+%
+%Recently, there has been a significant interest in applying probabilistic programming techniques with
+%autodifferentiation capabilities to develop more efficient simulations.
+%\JCO{not sure what this means: probabilistic programming techniques}
 %
 In particular, following the development of the RealNVP \citep{dinhRealNVP} architecture, there has been an explosion of
 different proposals that aim to take advantage of the invertible network architecture.
@@ -190,7 +202,7 @@ multiple works
    cossu2018testing,rezende2020normalizing%
 }, 
 that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field
-theories.\textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) Terrible sentence}}
+theories.\textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) rewrite}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:background}Background}
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
@@ -199,17 +211,13 @@ We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and s
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{\label{sec:l2hmc}Generalizing the leapfrog integrator: L2HMC}
 %
-In \citep{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
-its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
-distributions.
+%For example, the trained L2HMC sampler is shown to be capable of exploring regions of phase space which are typically
+%inaccessible with traditional HMC.\@
 %
-For example, the trained L2HMC sampler is shown to be capable of exploring regions of phase space which are typically
-inaccessible with traditional HMC.\@
-%
-Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
-distribution, a feature which is highly desirable for MCMC simulations of lattice gauge
-theory. \textcolor{blue}{\(\ast\)}%
-\marginpar{\textcolor{blue}{\(\ast\) combine w/ prev sentence}}
+%Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
+%distribution, a feature which is highly desirable for MCMC simulations of lattice gauge
+%theory. \textcolor{blue}{\(\ast\)}%
+%\marginpar{\textcolor{blue}{\(\ast\) combine w/ prev sentence}}
 %
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
@@ -219,8 +227,8 @@ Here we've introduced a binary direction variable (distributed independently of 
 \(d\sim\mathcal{U}(+,-)\) which is resampled following each Metropolis-Hastings accept/reject step, and can be
 interpreted as determining the ``direction'' (forward/backward) of our update.
 %
-\textbf{The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.}
+The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
+= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.
 %
 
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
@@ -280,8 +288,9 @@ shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}
    \centering
    % \includegraphics[width=\textwidth]{figures/splitx10.pdf}
    \includegraphics[width=\textwidth]{figures/updated_network2.pdf}
-   \caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
-   transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
+   \caption{\label{fig:network}Illustration of a single leapfrog layer used in the \(x\) update from the \Eqref{eq:new_position_update}.}
+   %\caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
+   %transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
 \end{figure}
 %
 
