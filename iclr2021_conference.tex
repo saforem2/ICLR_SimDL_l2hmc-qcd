@@ -111,8 +111,9 @@ distributions.
 %
 In particular, they show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are typically inaccessible with traditional HMC.
 %
-This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory which suffer from the critical slowing down \citet{schaefer2009investigating} of the algorithm.
-
+This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{schaefer2009investigating,cossu2018testing}.
+%suffer from the critical slowing down \citet{schaefer2009investigating} of the algorithm.
+%
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
 \begin{enumerate}
@@ -123,21 +124,26 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       augmented leapfrog equations, (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that
       these functions are allowed to vary.
       %
-   \item We propose a modified loss function, defined in terms of the topological charge metric
-      \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi)\),
+   \item We propose a modified loss function
+   %defined in terms of the topological charge metric
+      %$\(\delta(\xi^{\prime}, \xi)\),
       %
       \begin{equation}
-         \mathcal{L}_{\theta}{\left[\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right]} =%
-         \frac{-A(\xi^{\prime}|\xi)\cdot \delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime},\xi)}{a^{2}},
+          \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
+              \left[-\tfrac{1}{\ell^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
+          \delta(\xi^{\prime}, \xi) \equiv
+      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}
+          }
+         %\mathcal{L}_{\theta}{\left[\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right]} =%
+         %\frac{-A(\xi^{\prime}|\xi)\cdot \delta(\xi^{\prime},\xi)}{a^{2}},
       \end{equation}
       %
-      where \(\delta_{\mathcal{Q}_{\mathbb{R}}}(\xi^{\prime}, \xi) \equiv
-      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}\), and
-      \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) is the \emph{real-valued topological charge}, defined in
-      \Secref{sec:lattice_gauge_theory}.
+      %where \(\delta(\xi^{\prime}, \xi) \equiv
+      %{\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}\), and
+      where \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) is the real-valued topological charge, defined in \Secref{sec:lattice_gauge_theory}.
       %
       We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
-      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), \(i = x, v\)
+      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), (\(i =(x, v)\), \(k = (0, 1, \ldots, N_{\mathrm{LF}})\))
       introduced in the augmented leapfrog updates in \Secref{sec:l2hmc}.
       %
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,11 +165,11 @@ This ability to mix between isolated modes of a multi-modal target distribution 
    %    %
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
-      \(N_{x}\times N_{t}\) lattice with periodic boundary conditions, and report a significant reduction in the
-      computational cost, as measured by the \emph{integrated autocorrelation time} of the topological charge
+      square lattice with periodic boundary conditions, and report a significant reduction in the
+      computational cost, as measured by the integrated autocorrelation time of the topological charge
       \(\tau_{\mathrm{int}}^{\mathcal{Q}}\).
       %
-      We compare our results to traditional HMC across a variety of trajectory lengths and inverse coupling constants
+      We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants
       \(\beta\), and show that our trained model consistently outperforms traditional HMC (see
       \Figref{fig:autocorr_vs_beta}).
       %
@@ -200,8 +206,8 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 \citep{%
    albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
    neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
-   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,schaefer2009investigating,
-   cossu2018testing,rezende2020normalizing%
+   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,
+   rezende2020normalizing%cossu2018testing,
 }.
 
 %that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field
@@ -231,7 +237,7 @@ Here we've introduced a binary direction variable (distributed independently of 
 interpreted as determining the ``direction'' (forward/backward) of our update.
 %
 The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-= x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.
+= x, v\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
 %
 
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
@@ -250,15 +256,15 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
 where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
 \(v\) respectively) networks' inputs,\footnote{%
    Each of which is independent of the variable being updated.
-}, and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
-\Lambda^{\pm}_{k}\).
+}, (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
+\Lambda^{\pm}_{k}\), and (3.) \(k=0,1,\ldots,N_{\mathrm{LF}}\) denotes the current leapfrog step along the trajectory .
 %
-We include in \Figref{fig:network} an illustration of the network architecture used for the \(x\) update \Eqref{eq:new_position_update}.
+We include in \Figref{fig:network} an illustration of the network architecture used for the updates \Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}.
 %
 \begin{figure}[htpb]
    \centering
    % \includegraphics[width=\textwidth]{figures/splitx10.pdf}
-   \includegraphics[width=\textwidth]{figures/n}
+   \includegraphics[width=\textwidth]{figures/network_updated5.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
    %\caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
    %transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
@@ -317,52 +323,6 @@ However, unlike in the expression for HMC, we must take into account the overall
 % We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-In order to perform the updates in the generalized leapfrog integrator, we need to evaluate each of the functions
-\(s, t, q\).
-%
-Without loss of generality\footnote{%
-   Because we maintain a separate network with identical architecture for evaluating the \(s_{v}, t_{v}, q_{v}\)
-   functions in \Eqref{eq:new_momentum_update}, the procedure is identical.
-},
-%
-we temporarily ignore the discrete leapfrog index \(k\), and restrict our attention to the \(s_{x}, t_{x}, q_{x}\)
-functions used in the \(x\) update, \Eqref{eq:new_position_update}.
-%
-Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v)\), with \(x\in\mathbb{R}^{n}\),
-\(v\in\mathbb{R}^{n}\).
-%
-An illustration of the network architecture used can be seen in \Figref{fig:network}.
-%
-%These inputs are then passed through a \emph{leapfrog layer}, as shown in \Figref{fig:network}.
-%%
-Explicitly, the network first passes each of the inputs, \(x\), \(v\) through a dense layer.
-%
-These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, 
-%
-\begin{equation}
-   z_{d} = \sigma(w^{T}_{d} z_{d-1} + b_{d-1}),\,%
-   z_{d-1} = \sigma(w_{d-1}^{T}z_{d-2}+b_{d-2}),\,%
-   \,\ldots,\,%
-   % \text{until: }
-   % z_{n}=\sigma(w^{T}_{n}z_{n-1} + b_{n}),%
-   % z_{n-1}=\sigma(w^{T}_{n-1}z_{n-2} + b_{n-1}),%
-   % \ldots,%
-   % z_{2} = \sigma(w^{T}_{2}z_{1} + b_{2}),
-   z_{1} \equiv \sigma(w_{x}^{T} x + w_{v}^{T} v + b)
-\end{equation}
-%
-The network outputs \(s_{x}, t_{x}, q_{x}\) are then defined in terms of this final hidden variable \(z_{d}\) as
-%
-\begin{equation}
-   s_{x}(\zeta_{x}) = \alpha_{s}\tanh(w_{s}z_{d} + b_{s}),\quad
-   t_{x}(\zeta_{x}) = w_{t}^{T}z_{d} + b_{t},\quad
-   q_{x}(\zeta_{x}) = \alpha_{q}\tanh(w_{q}z_{d} + b_{q})
-\end{equation}
-%
-where \(\alpha_{s}\), and \(\alpha_{q}\) are trainable scaling factors.
-%
-The only requirement on the details of the network is that the dimensionality of the outputs \(s_{x}, t_{x}, q_{x}\)
-match the dimensionality of our physical variables \(x, v \in\mathbb{R}^{n}\).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
@@ -382,11 +342,11 @@ variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direc
 We can write our target distribution in terms of the Wilson action \(S_{\beta}(x)\) as
 %
 \begin{equation}
-   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta\cdot \sum_{P}1 - \cos(x_{P})
+   p_{t}(x) = e^{-\gamma_{t}\cdot S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta\cdot \sum_{P}1 - \cos(x_{P})
    \label{eq:wilsonaction}
 \end{equation}
 %
-where (\(1\).) \(\gamma_{t}\) is a scaling factor (\(\|\gamma_{t}\|<1\)) from our annealing schedule (\Secref{sec:annealing}), and (\(2\).) \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
+where (\(1\).) \(\gamma_{t}\) is a scaling factor (\(\|\gamma_{t}\|<1\)) that is slowly annealed during training (\Secref{sec:annealing}) and (\(2\).) \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
 variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}.
 %
 Here, \(\beta = 2 / g_{0}^{2}\) is a coupling constant and \(\beta\rightarrow\infty\) recovers the continuum limit of the theory. 
@@ -426,6 +386,11 @@ Our loss function is then defined as
       \left[-\tfrac{1}{\ell^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
    }
 \end{equation}
+%
+%\begin{equation}
+%    \mathcal{L}_{\theta}{\left[\xi^{\prime},\xi,A(\xi^{\prime}|\xi)\right]} 
+%        =\frac{-A(\xi^{\prime}|\xi)\cdot \delta(\xi^{\prime},\xi)}{a^{2}},
+%\end{equation}
 %
 where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) - \mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
 %\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.}}%
@@ -559,6 +524,8 @@ numerically integrated using the leapfrog integrator along iso-probability conto
 %
 Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
 proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
+%
+\subsection{\label{subsec:leapfroghmc}Leapfrog Update}
 %
 \begin{enumerate}
    \item Half-step momentum update: \hspace{12pt}\(%
