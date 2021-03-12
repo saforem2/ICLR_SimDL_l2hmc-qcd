@@ -45,7 +45,9 @@
 \newcommand{\mt}{\textcolor{blue}{m^{t}}}
 
 
-\title{Neural Transformations for \\Efficient Topological Mixing}% in Lattice Gauge Theory}
+
+%\title{Neural Transformations for \\Efficient Topological Mixing}
+\title{Deep Learning Hamiltonian Monte Carlo}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
@@ -86,7 +88,7 @@
       step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
    \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
    \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
-   \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
+   %\item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
    \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
       inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
    \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
@@ -95,6 +97,10 @@
       \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
    \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
       conv/fully-connected network.
+  \item Don't need to include details about annealing schedule (save space).
+  \item Instead of splitx figure, re-draw network diagram showing inputs/outputs and various layers. ``Generalized leapfrog''.
+  \item \textbf{``Leapfrog layer''}: Show network diagram for a single leapfrog layer, indicate that each leapfrog step uses a separate leapfrog layer, explain how "Full-step position update, etc." are a single leapfrog layer with  index \(k\).
+  
 \end{enumerate}
 %
 \section{\label{sec:main_contributions}Main Contributions}
@@ -261,7 +267,7 @@ as:
    \)
    \item Half-step momentum update:%
       \hspace{25pt} \(%
-         v^{\prime\prime}_{k} = \Gamma^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
+         v^{\prime\prime}_{k} = \Gamma_{k}^{+}(v^{\prime}_{k}; \zeta_{v^{\prime}_{k}})
    \)
 \end{enumerate}
 %
@@ -309,9 +315,9 @@ functions used in the \(x\) update, \Eqref{eq:new_position_update}.
 Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v)\), with \(x\in\mathbb{R}^{n}\),
 \(v\in\mathbb{R}^{n}\).
 %
-The network first passes each component of the input (\(x\), \(v\)) through a dense layer.
+The network first passes each of the inputs \(x\), \(v\) through a dense layer.
 %
-These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, i.e. 
+These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, i.e. \marginpar{a single ``leapfrog layer''}
 %
 \begin{equation}
    z_{d} = \sigma(w^{T}_{d} z_{d-1} + b_{d-1}),\,%
@@ -325,12 +331,12 @@ These outputs are then summed together before being passed through an additional
    z_{1} \equiv \sigma(w_{x}^{T} x + w_{v}^{T} v + b)
 \end{equation}
 %
-The network outputs \(s_{x}, t_{x}, q_{x}\) are then defined in terms of this final hidden variable \(z_{n}\) as
+The network outputs \(s_{x}, t_{x}, q_{x}\) are then defined in terms of this final hidden variable \(z_{d}\) as
 %
 \begin{equation}
-   s_{x}(\zeta_{x}) = \alpha_{s}\tanh(w_{s}z_{n} + b_{s}),\quad
-   t_{x}(\zeta_{x}) = w_{t}^{T}z_{n} + b_{t},\quad
-   q_{x}(\zeta_{x}) = \alpha_{q}\tanh(w_{q}z_{n} + b_{q})
+   s_{x}(\zeta_{x}) = \alpha_{s}\tanh(w_{s}z_{d} + b_{s}),\quad
+   t_{x}(\zeta_{x}) = w_{t}^{T}z_{d} + b_{t},\quad
+   q_{x}(\zeta_{x}) = \alpha_{q}\tanh(w_{q}z_{d} + b_{q})
 \end{equation}
 %
 where \(\alpha_{s}\), and \(\alpha_{q}\) are trainable scaling factors.
@@ -344,7 +350,8 @@ Next, we introduce a loss function, \(%
    \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
       \left[-\tfrac{1}{a^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
    }
-\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.
+\), where \(\delta(\xi^{\prime},\xi)\) is a suitably chosen metric function, and \(a\) is a scaling factor.%
+\marginpar{Clean up; maybe move annealing schedule section into sentence here}
 %
 % \begin{equation}
 %    \ell_{\theta}{\left[\xi, \xi^{\prime}, A(\xi^{\prime}|\xi)\right]} =
@@ -380,6 +387,7 @@ our progress through the training phase, which can be written explicitly as %\(%
 % \).
 \begin{equation}
    p_{t}(x)\propto e^{-\gamma_{t} S(x)},\quad\text{for}\quad t=0, 1, \ldots, N
+   \label{eq:targetannealing}
 \end{equation}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -398,13 +406,12 @@ variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direc
 %
 % Our theory is defined in terms of the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\),
 %
-We can write our target distribution \(p_{t}(x)\) in terms of the Wilson action, \(S_{\beta}(x) =
-\beta\cdot\sum_{P}1-\cos(x_{P})\) as
+We can write our target distribution \(p_{t}(x)\) \Eqref{eq:targetannealing} in terms of the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\).\marginpar{awful sentence}
 %
-\begin{equation}
-   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S(x)},\quad\text{with}\quad \beta\cdot S(x) = \sum_{P}1 - \cos(x_{P})
-   \label{eq:wilsonaction}
-\end{equation}
+%\begin{equation}
+%   p_{t}(x) = e^{-\gamma_{t}\beta\cdot S(x)},\quad\text{with}\quad \beta\cdot S(x) = \sum_{P}1 - \cos(x_{P})
+%   \label{eq:wilsonaction}
+%\end{equation}
 %
 where \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
 variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}.
@@ -487,16 +494,24 @@ defined as
    % \subsection{\label{subsec:extra_figures}Extra Figures}
    % \begin{figure}[htpb]
    % \centering
-   \begin{subfigure}{0.49\textwidth}
+   %(energy density for the physics we are interested in) 
+   \begin{subfigure}{0.31\textwidth}
       \includegraphics[width=\textwidth]{figures/plaqsf_1758.pdf}
-      \caption{\label{fig:plaqsf}Error in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) vs
+      \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) vs
       leapfrog step.}
    \end{subfigure}
    \hfill
-   \begin{subfigure}{0.49\textwidth}
+   \begin{subfigure}{0.31\textwidth}
       \includegraphics[width=\textwidth]{figures/sinQf_1755.pdf}
       \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) vs leapfrog step.}%
    \end{subfigure}
+   %
+   \hfill
+   \begin{subfigure}{0.31\textwidth}
+      \includegraphics[width=\textwidth]{figures/extras/hwf.pdf}
+      \caption{Log probability of the model (includes both \(x\) and \(v\)}%
+   \end{subfigure}
+   
    % \caption{\label{fig:transformations}Illustration of how various observables vary over a single trajectory for the
    % trained sampler.}
 \end{figure}
