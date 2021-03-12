@@ -79,16 +79,16 @@
 \section{TODO}
 \begin{enumerate}
    \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
-      step in our trajectory \textcolor{blue}{\(\star\)}. \marginpar{\textcolor{blue}{\(\star\) WIP}}
+      step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
    \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
    \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
    \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
    \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
-      inline. \textcolor{blue}{\(\star\)}\marginpar{\textcolor{blue}{\(\star\) WIP}}
+      inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
    \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
       difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
    \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
-      \Secref{sec:l2hmc}.\textcolor{blue}{\(\star\)}\marginpar{\textcolor{blue}{\(\star\) WIP}}
+      \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
    \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
       conv/fully-connected network.
 \end{enumerate}
@@ -197,8 +197,8 @@ inaccessible with traditional HMC.\@
 %
 Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
 distribution, a feature which is highly desirable for MCMC simulations of lattice gauge
-theory. \textcolor{blue}{\(\star\)}%
-\marginpar{\textcolor{blue}{\(\star\) combine w/ prev. sentence}}
+theory. \textcolor{blue}{\(\ast\)}%
+\marginpar{\textcolor{blue}{\(\ast\) combine w/ prev. sentence}}
 %
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
@@ -227,13 +227,13 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
          + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
-where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) are a shorthand
-notation for the input passed to the respective \(s, t, q\) network functions\footnote{Note that \(\zeta_{x},
-\zeta_{v}\) are subsets of the augmented state space, independent of the variable being updated.},
-and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k}, \Lambda^{\pm}_{k}\).
-%
-% (2.) \(\tau(k) = {\left[\cos\tfrac{2\pi k}{N_{\mathrm{LF}}}, \sin\tfrac{2\pi k}{N_{\mathrm{LF}}}\right]}\), \(k = 0, 1,
-% \ldots, N_{\mathrm{LF}}\), is a discrete time variable parameterizing our trajectory,
+where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
+\(v\) respectively) networks' inputs,\footnote{%
+   Each of which is independent of the variable being updated.
+   % Note that \(\zeta_{x}, \zeta_{v}\) are subsets of the augmented state space, independent of the variable being
+   % updated.
+}, and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
+\Lambda^{\pm}_{k}\).
 %
 Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
    To obtain the expression for the reverse direction, we can invert each of the
@@ -247,8 +247,12 @@ as:
       \hspace{29pt}\(%
          v^{\prime}_{k} = \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})%
    \)
-   \item Full-step half-position update\footnote{By this we mean we are performing a complete update step that only
-      updates half of the components of \(x\) determined by the mask \(\mt\) and its complement \(\mbart\).}:
+   \item Full-step half-position update:\footnote{%
+         By this we mean we are performing a complete update on one-half of the indices of \(x\) (determined by
+         \(\mt\odot x\)), followed by an analogous update of the complementary indices, \(\mbart\odot x\).
+   }
+   % updates half of the components of \(x\) determined by the mask \(\mt\) followed by an analogous update of the
+   % complementary components (using \(\mbart\).} %its complement \(\mbart\).}:
       \hspace{14pt} \(%
          x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
    \)
@@ -264,7 +268,8 @@ as:
 %
 Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
 introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially, as
-shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}.
+shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}. \textcolor{blue}{\(\ast\)} 
+\marginpar{\textcolor{blue}{\(\ast\) move splitx fig to appendix?}}
 %
 \begin{figure}[htpb]
    \centering
@@ -283,14 +288,16 @@ However, unlike in the expression for HMC, we must take into account the overall
    \(\left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x}
    s^{k}_{x}(\zeta_{x_{k}})\right)}\).
 %
-So far we've restricted our attention to the forward \((d=+1)\) update, however we can obtain the expressions for the
-reverse direction simply by inverting the two functions \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}\),
-\(\Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\), and performing the updates in the reverse order.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% So far we've restricted our attention to the forward \((d=+1)\) update, however we can obtain the expressions for the
+% reverse direction simply by inverting the two functions \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}\),
+% \(\Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\), and performing the updates in the reverse order.
+%%%%%%%%%%%%
+% We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 In order to perform the updates in the generalized leapfrog integrator, we need to evaluate each of the functions
 \(s, t, q\).
-%
-% We maintain separate networks with identical architectures for updating the \(x\) and \(v\) components separately.
 %
 Without loss of generality\footnote{%
    Because we maintain a separate network with identical architecture for evaluating the \(s_{v}, t_{v}, q_{v}\)
@@ -305,7 +312,7 @@ Each of the \(s_{x}, t_{x}, q_{x}\) functions takes as input \(\zeta_{x} = (x, v
 %
 The network first passes each component of the input (\(x\), \(v\)) through a dense layer.
 %
-These outputs are then summed together before being passed through a subsequent stack of \(d\) hidden layers, i.e. 
+These outputs are then summed together before being passed through an additional stack of \(d\) hidden layers, i.e. 
 %
 \begin{equation}
    z_{d} = \sigma(w^{T}_{d} z_{d-1} + b_{d-1}),\,%
@@ -369,20 +376,28 @@ Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the hei
 easier for our sampler to explore previously inaccessible regions of the phase space.
 %
 In terms of this additional annealing schedule, our target distribution picks up an additional index \(t\) to represent
-our progress through the training phase, which can be written explicitly as  \(p_{t}(x)\propto e^{-\gamma_{t} S(x)},
-\quad\text{for}\quad t = 0, 1, \ldots, N\).
+our progress through the training phase, which can be written explicitly as %\(%
+   % p_{t}(x)\propto e^{-\gamma_{t} S(x)}, \quad\text{for}\quad t = 0, 1, \ldots, N
+% \).
+\begin{equation}
+   p_{t}(x)\propto e^{-\gamma_{t} S(x)},\quad\text{for}\quad t=0, 1, \ldots, N
+\end{equation}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
 %
-Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
+% Our theory is defined on an \(N_{x}\times N_{t}\) two-dimensional lattice with periodic boundary conditions.
 %
 Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
-variables}, where \(x_{\mu}(n)\) denotes the link oriented in the \(\hat{\mu}\)-direction located at the site
+variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site
 \(n\).
+%
+% The behavior of our model is dictated by the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\)
 %
 % We denote by \(P\) the \(1\times1\) elementary plaquette with counter-clockwise orientation as shown in
 % \Figref{fig:plaquette}.
+%
+% Our theory is defined in terms of the Wilson action, \(S_{\beta}(x) = \beta\cdot\sum_{P}1-\cos(x_{P})\),
 %
 We can write our target distribution \(p_{t}(x)\) in terms of the Wilson action, \(S_{\beta}(x) =
 \beta\cdot\sum_{P}1-\cos(x_{P})\) as
@@ -392,9 +407,8 @@ We can write our target distribution \(p_{t}(x)\) in terms of the Wilson action,
    \label{eq:wilsonaction}
 \end{equation}
 %
-and \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu})
--x_{\nu}(n)\) is the sum of the link variables around the \(1\times1\) elementary plaquette, as shown in
-\Figref{fig:plaquette}.
+where \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
+variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}.
 %
 Here, \(\beta = 2 / g_{0}^{2}\) is the inverse coupling constant and \(\beta\rightarrow\infty\) recovers the continuum
 limit of the theory. 
@@ -502,17 +516,16 @@ doe or the united states government.
 \appendix
 \section{Appendix}
 %
-\subsection{\label{subsec:HMC}Hamiltonian Monte Carlo}
+\subsection{\label{subsec:HMC}Hamiltonian Monte Carlo (HMC)}
 %
-The Hamiltonian Monte Carlo (HMC) algorithm is a widely used technique that allows us to sample from an analytically
-known target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)},
-x^{(1)}, \ldots, x^{(n)}\}\), such that \(x^{(n)}\sim p(x)\) in the limit
-\(n\rightarrow\infty\).
+The Hamiltonian Monte Carlo algorithm is a widely used technique that allows us to sample from an analytically known
+target distribution \(p(x)\) by constructing a chain of states \(\{x^{(0)}, x^{(1)}, \ldots, x^{(n)}\}\), such that
+\(x^{(n)}\sim p(x)\) in the limit \(n\rightarrow\infty\).
 %
 For our purposes, we assume that our target distribution can be expressed as a Boltzmann distribution, \(p(x) =
-\tfrac{1}{\mathcal{Z}} e^{-S(x)}\propto e^{-S(x)}\), where \(S(x)\) is the \emph{action} of our
-theory, and \(\mathcal{Z}\) is often referred to as the \emph{partition function}, which ensures our target distribution
-is correctly normalized to unity.
+\tfrac{1}{\mathcal{Z}} e^{-S(x)}\propto e^{-S(x)}\), where \(S(x)\) is the \emph{action} of our theory, and
+\(\mathcal{Z}\) is often referred to as the \emph{partition function}, which ensures our target distribution is
+correctly normalized to unity.
 %
 In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
 distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
@@ -577,7 +590,7 @@ acceptance criteria,
    x_{i+1} =
    \begin{cases}%
       x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)), \quad\text{where}\quad %
+      x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)), \quad\text{and}\quad%
          A(\xi^{\prime}|\xi) = \min\left\{%
             1, \frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial{\xi^{\prime}}}{\partial\xi^{T}}\right|%
          \right\}.
