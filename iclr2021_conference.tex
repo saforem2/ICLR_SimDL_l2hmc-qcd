@@ -310,9 +310,10 @@ introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of th
 As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
 However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
-\(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime}_{k}}{\partial
+\(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime\prime}_{k}}{\partial
    v_{k}}\right| = \exp{\left(\tfrac{1}{2}{\varepsilon^{k}_{v}\cdot s^{k}_{v}(\zeta_{v_{k}})}\right)}\),
-   \(\left|\tfrac{\partial x^{\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x}
+   \(\left|\tfrac{\partial x^{\prime\prime:w
+   }_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x}
    s^{k}_{x}(\zeta_{x_{k}})\right)}\).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
