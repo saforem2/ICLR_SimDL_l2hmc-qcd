@@ -5,10 +5,11 @@
 % Optional math commands from https://github.com/goodfeli/dlbook_notation.
 \input{math_commands.tex}
 
+\usepackage[unicode,linktocpage=true,breaklinks]{hyperref}% add hypertext capabilities
+% \usepackage{url}
+
 \usepackage{xcolor}
-% \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
 \setlength{\marginparwidth}{2cm}
-% \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{enumitem}
 \usepackage{bbm}
 \usepackage{natbib}
@@ -19,12 +20,11 @@
 \usepackage{dcolumn}% Align table columns on decimal point
 \usepackage{bm}% bold math
 \usepackage{subcaption}
-\usepackage[ruled, vlined,linesnumbered,inoutnumbered,rightnl]{algorithm2e}
+\usepackage[ruled, vlined,inoutnumbered,rightnl]{algorithm2e}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows}
 \newcommand{\JCO}[1]{\textcolor{red}{[#1]}}
 
-\usepackage[unicode,linktocpage=true,breaklinks]{hyperref}% add hypertext capabilities
 \hypersetup{
   colorlinks=true,
   urlcolor=green,
@@ -32,14 +32,18 @@
   citecolor=cyan,
 }
 
+% \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
+% \usepackage[colorinlistoftodos]{todonotes}
+% \usepackage[ruled, vlined,linesnumbered,inoutnumbered,rightnl]{algorithm2e}
+% \RequirePackage{lineno}
+% \linenumbers\relax % Commence numbering lines
+
 \definecolor{blue1}{HTML}{448aff}
 \definecolor{pink1}{HTML}{FA5477}
 
 \newcommand{\mbart}{\textcolor{red}{\bar{m}^{t}}}
 \newcommand{\mt}{\textcolor{blue}{m^{t}}}
 
-% \RequirePackage{lineno}
-% \linenumbers\relax % Commence numbering lines
 
 \title{Neural Transformations for \\Efficient Topological Mixing}% in Lattice Gauge Theory}
 
@@ -76,22 +80,22 @@
 
 % \section{\label{sec:introduction}Introduction}
 % \color{red}{TODO:\@ Complete introduction}\color{black}
-\section{TODO}
-\begin{enumerate}
-   \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
-      step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
-   \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
-   \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
-   \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
-   \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
-      inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
-   \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
-      difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
-   \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
-      \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
-   \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
-      conv/fully-connected network.
-\end{enumerate}
+% \section{TODO}
+% \begin{enumerate}
+%    \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
+%       step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
+%    \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
+%    \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
+%    \item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
+%    \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
+%       inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
+%    \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
+%       difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
+%    \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
+%       \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
+%    \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
+%       conv/fully-connected network.
+% \end{enumerate}
 %
 \section{\label{sec:main_contributions}Main Contributions}
 \begin{enumerate}
@@ -179,7 +183,8 @@ multiple works
    hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,schaefer2009investigating,
    cossu2018testing,rezende2020normalizing%
 }, 
-that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field theories.
+that look at developing more efficient sampling techniques specifically tailored for lattice gauge/field
+theories.\textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) Terrible sentence}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:background}Background}
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
@@ -198,7 +203,7 @@ inaccessible with traditional HMC.\@
 Additionally, they show that the trained sampler is efficient at mixing between modes of a multi-modal target
 distribution, a feature which is highly desirable for MCMC simulations of lattice gauge
 theory. \textcolor{blue}{\(\ast\)}%
-\marginpar{\textcolor{blue}{\(\ast\) combine w/ prev. sentence}}
+\marginpar{\textcolor{blue}{\(\ast\) combine w/ prev sentence}}
 %
 
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
@@ -210,8 +215,6 @@ interpreted as determining the ``direction'' (forward/backward) of our update.
 %
 \textbf{The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
 = x, v\) into the leapfrog updates, which are parameterized by weights \(\theta\) in a neural network.}
-%
-% Before describing the modified leapfrog updates, we first introduce some notation.
 %
 
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
@@ -230,8 +233,6 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
 where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
 \(v\) respectively) networks' inputs,\footnote{%
    Each of which is independent of the variable being updated.
-   % Note that \(\zeta_{x}, \zeta_{v}\) are subsets of the augmented state space, independent of the variable being
-   % updated.
 }, and (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
 \Lambda^{\pm}_{k}\).
 %
@@ -251,8 +252,6 @@ as:
          By this we mean we are performing a complete update on one-half of the indices of \(x\) (determined by
          \(\mt\odot x\)), followed by an analogous update of the complementary indices, \(\mbart\odot x\).
    }
-   % updates half of the components of \(x\) determined by the mask \(\mt\) followed by an analogous update of the
-   % complementary components (using \(\mbart\).} %its complement \(\mbart\).}:
       \hspace{14pt} \(%
          x^{\prime}_{k} = \mbart\odot x_{k} + \mt\odot \Lambda^{+}_{k}(x_{k};\zeta_{x_{k}})
    \)
@@ -268,12 +267,12 @@ as:
 %
 Note that in order to keep our leapfrog update reversible, we've split the \(x\) update into two sub-updates by
 introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially, as
-shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}. \textcolor{blue}{\(\ast\)} 
+shown (with the general transformation \(\Lambda^{\pm}\)) in \Figref{fig:splitx}. \textcolor{blue}{\(\ast\)}%
 \marginpar{\textcolor{blue}{\(\ast\) move splitx fig to appendix?}}
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/splitx10.pdf}
+   \includegraphics[width=0.75\textwidth]{figures/splitx10.pdf}
    \caption{\label{fig:splitx}Illustration of the split \(x\) update. Here we include the general form of the
    transformation \(\Lambda^{\pm}_{k}(x_{k};\zeta_{x_{k}})\).}
 \end{figure}
@@ -458,28 +457,30 @@ defined as
 % \includegraphics[width=\textwidth]{figures/autocorr_vs_beta_blue_1504.pdf}
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}{0.22\textwidth}
+   \begin{subfigure}{0.34\textwidth}
       \includegraphics[width=\textwidth]{figures/plaq_tikz.pdf}
       \caption{\label{fig:plaquette}Plaquette, \(P\)}
    \end{subfigure}
    %
    \hfill
    %
-   \begin{subfigure}{0.37\textwidth}
-      \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue2.pdf}
-      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{R}}\) vs MC
-      step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
-   \end{subfigure}
-   %
-   \hfill
-   %
-   \begin{subfigure}{0.39\textwidth}
+   \begin{subfigure}{0.65\textwidth}
       \includegraphics[width=\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
       \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
    different trajectory lengths.}
          % for HMC (black dashed line), trained model (solid blue line).}
    \end{subfigure}
+   \hfill
+   %
+   % \begin{subfigure}{0.37\textwidth}
+   \begin{subfigure}{\textwidth}
+      % \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue2.pdf}
+      \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
+      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{R}}\) vs MC
+      step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
+   \end{subfigure}
+   %
    % \end{figure}
    %
    \hfill
@@ -530,22 +531,13 @@ correctly normalized to unity.
 In this case, HMC begins by augmenting the state space with a fictitious momentum variable \(v\), normally
 distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
 %
-Our joint distribution can then be written as
-%
-\begin{equation}
+Our joint distribution can then be written as \(%
    p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
-\end{equation}
+\), where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint (x, v) system.
 %
-where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
-%
-Notably, this system obeys Hamilton's equations
-%
-\begin{equation}
-   \dot{x} = \frac{\partial\mathcal{H}}{\partial v},\quad \dot{v} = -\frac{\partial\mathcal{H}}{\partial x}
-\end{equation}
-%
-which can be integrated using the \emph{leapfrog integrator} along iso-probability contours defined by \(\mathcal{H} =
-\text{const}\).
+This system obeys Hamilton's equations: % 
+\(\dot{x} = \frac{\partial\mathcal{H}}{\partial v}\), \(\dot{v} = -\frac{\partial H}{\partial x}\), which can be 
+numerically integrated using the leapfrog integrator along iso-probability contours of \(\mathcal{H} = \text{const.}\).
 %
 Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
 proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
@@ -554,30 +546,13 @@ proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by perfo
    \item Half-step momentum update: \hspace{12pt}\(%
       v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
    \)
-      %
-      % \begin{equation}
-      %    v^{1/2} \equiv v{\left(t+\frac{\varepsilon}{2}\right)} = v-\frac{\varepsilon}{2}\partial_{x}S(x)
-      %    \label{eq:original_momentum_update}
-      % \end{equation}
-      %
    \item Full-step position update: \hspace{36pt}\(%
       x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
    \)
-      %
-      % \begin{equation}
-      %    x^{\prime} \equiv x(t+\varepsilon) = x + \varepsilon v^{1/2}
-      %    \label{eq:original_position_update}
-      % \end{equation}
-      %
    \item Half-step momentum update:
       \hspace{18pt} \(%
          v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
    \)
-      %
-      % \begin{equation}
-      %    v^{\prime} \equiv v(t+\varepsilon) = v^{1/2} - \frac{\varepsilon}{2}\partial_{x} S(x^{\prime})
-      % \end{equation}
-      %
 \end{enumerate}
 %
 We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon\cdot N_{\mathrm{LF}}\) by
@@ -598,10 +573,86 @@ acceptance criteria,
    \label{eq:mhcriteria}
 \end{equation}
 %
-% where
-%
 The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
+%
+\subsection{\label{subsec:algorithm}Training Algorithm}
+%
+\begin{algorithm}[htpb]%
+   % \SetAlgoSkip{bigskip}%
+   % \SetVlineSkip{20pt}
+   % \SetNlSty{texttt}{[}{]}
+   % \SetAlgoRefName{training}
+   \SetAlgoLined%
+   \SetAlgoVlined%
+   \SetKwProg{Fn}{def}{\string:}{}%
+   \SetKwFunction{Range}{range}%
+   \SetKwFor{For}{\color{blue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
+   \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+   \SetKwFor{While}{while}{:}{fintq}%
+   \SetKwInOut{Input}{\color{red}{\textbf{\texttt{input}}}\color{black}}%
+   \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
+   \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
+   \DontPrintSemicolon%
+   \caption{\label{alg:training_algorithm}Training procedure}%
+   \Input{%
+      % {}\\
+      \begin{enumerate}
+         \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
+         \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
+            A(\xi^{\prime}|\xi))\)
+         \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
+         \item \texttt{Annealing schedule}, \({\{\gamma_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
+         \item \texttt{Batch of initial states}, \(x\)
+      \end{enumerate}
+   }%
+   \texttt{Initialize weights} \(\theta\)\;
+   % {}\;
+   \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
+      % {}\;
+      \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
+      \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
+      \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
+      \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
+      % {}\;
+      \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
+         \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
+      }
+      \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
+      \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
+      \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
+      % {}\;
+      \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
+      A(\xi^{\prime}|\xi))\)\;
+      % {}\;
+      \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
+      % {}\;
+      \texttt{assign:} \(x_{t+1} \leftarrow
+      \begin{cases}
+         x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
+         x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
+      \end{cases}%
+      \)\;
+   }\;
+   % \caption{\label{alg}Training algorithm}
+\end{algorithm}
+
+%
+% \begin{equation}
+%    p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
+% \end{equation}
+% %
+% where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint \((x, v)\) system.
+% %
+% Notably, this system obeys Hamilton's equations
+% %
+% \begin{equation}
+%    \dot{x} = \frac{\partial\mathcal{H}}{\partial v},\quad \dot{v} = -\frac{\partial\mathcal{H}}{\partial x}
+% \end{equation}
+% %
+% which can be integrated using the \emph{leapfrog integrator} along iso-probability contours defined by \(\mathcal{H} =
+% \text{const}\).
+%
 %
 
 % \includegraphics[width=\textwidth]{figures/plaqsf.pdf}
@@ -674,64 +725,4 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 % \end{figure}
 %
 %
-\subsection{\label{subsec:algorithm}Training Algorithm}
-%
-\begin{algorithm}[htpb]%
-   % \SetAlgoSkip{bigskip}%
-   % \SetVlineSkip{20pt}
-   \SetNlSty{texttt}{[}{]}
-   % \SetAlgoRefName{training}
-   \SetAlgoLined%
-   \SetAlgoVlined%
-   \SetKwProg{Fn}{def}{\string:}{}%
-   \SetKwFunction{Range}{range}%
-   \SetKwFor{For}{\color{blue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
-   \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-   \SetKwFor{While}{while}{:}{fintq}%
-   \SetKwInOut{Input}{\color{red}{\textbf{\texttt{input}}}\color{black}}%
-   \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
-   \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
-   \DontPrintSemicolon%
-   \caption{\label{alg:training_algorithm}Training procedure}%
-   \Input{%
-      % {}\\
-      \begin{enumerate}
-         \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
-         \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
-            A(\xi^{\prime}|\xi))\)
-         \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-         \item \texttt{Annealing schedule}, \({\{\gamma_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-         \item \texttt{Batch of initial states}, \(x\)
-      \end{enumerate}
-   }%
-   \texttt{Initialize weights} \(\theta\)\;
-   % {}\;
-   \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
-      % {}\;
-      \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
-      \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
-      \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
-      \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
-      % {}\;
-      \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
-         \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
-      }
-      \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
-      \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
-      \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
-      % {}\;
-      \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
-      A(\xi^{\prime}|\xi))\)\;
-      % {}\;
-      \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
-      % {}\;
-      \texttt{assign:} \(x_{t+1} \leftarrow
-      \begin{cases}
-         x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
-         x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
-      \end{cases}%
-      \)\;
-   }\;
-   % \caption{\label{alg}Training algorithm}
-\end{algorithm}
 \end{document}
