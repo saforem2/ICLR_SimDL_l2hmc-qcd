@@ -76,6 +76,7 @@
 \begin{abstract}
    We propose a generalized version of the L2HMC algorithm~\citep{levy2017}, and evaluate its ability to sample from
    different topologies in a two-dimensional lattice gauge theory.
+   We generalize the Hamiltonian Monte Carlo algorithm with a stack of neural network layers
    %
    In particular, we demonstrate that our model is able to successfully mix between modes of different topology,
    significantly reducing the computational cost required to generate independent gauge configurations.
@@ -105,7 +106,7 @@
 %\end{enumerate}
 %%
 \section{\label{sec:introduction}Introduction}
-In \citet{levy2017}, the authors propose the L2HMC (``Learning to Hamiltonian Monte Carlo'') algorithm, and demonstrate
+In \citet{levy2017}, the authors propose the L2HMC (Learning to Hamiltonian Monte Carlo) algorithm, and demonstrate
 its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
 distributions.
 %
@@ -126,7 +127,7 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       %
       \begin{equation}
           \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-              \left[-\tfrac{1}{\ell^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
+              \left[-\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
           \delta(\xi^{\prime}, \xi) \equiv
       {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}
           }
@@ -202,7 +203,7 @@ We include in \Figref{fig:network} an illustration of the network architecture u
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/network6.pdf}
+   \includegraphics[width=\textwidth]{figures/network7.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
 \end{figure}
 
@@ -294,7 +295,7 @@ Our loss function is then defined as
 %
 \begin{equation}
    \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-      \left[-\tfrac{1}{\ell^{2}}\cdot\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
+      \left[-\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
    }
 \end{equation}
 %
