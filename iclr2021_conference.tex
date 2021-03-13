@@ -118,21 +118,23 @@ They show that the trained L2HMC sampler is capable of mixing between modes by e
 inaccessible with traditional HMC.
 %
 In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose new Markov Chain states,
-which is made exact with the help of Metropolis-Hastings \citep{...} algorithm.
+which is made exact with the help of Metropolis-Hastings \citep{zbMATH03349185} algorithm.
 We target our Deep Learning Hamiltonian Monte Carlo (DLHMC) algorithm to simulating lattice gauge theories,
 where state-of-the-art simulations have billions of degrees of freedom and run on supercomputers with thousands of nodes,
-yet suffers exponential slow downs when approaching continuum physics \citep{kschaefer2009investigating,cossu2018testing}.
+yet suffers exponential slow downs when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
 %The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
 \begin{enumerate}
    \item We propose the DLHMC algorithm as a generalized L2HMC algorithm,
-      using a stack of distinct neural network layers as leapfrog steps that uses different networks (with different step
-      sizes) for each distinct leapfrog step.
+      using a stack of distinct neural network layers replacing consecutive leapfrog steps.
+      %that uses different networks (with different step
+      %sizes) for each distinct leapfrog step.
       %
-      We represent this generalization by carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}\) through the
-      augmented leapfrog equations, (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}) indicating that
-      these functions are allowed to vary.
+      Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for $N_{\mathrm{LF}}$
+      leapfrog layers, performs the
+      augmented leapfrog equations, (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), indicating that
+      these functions are parametrized by different neural networks.
       %
    \item We propose a modified loss function
       %
@@ -175,21 +177,29 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 }.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:method}Method}
+\section{\label{sec:method}DLHMC algorithm}
 %
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and set up some of the relevant notation in
 \Secref{subsec:HMC}.
 %
-We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x) p(v) p(d)\).
+For simulating a system, $x$, using a theoretically given probability density $p(x)$ with likely intractable normalization,
+we augment the Markov chain state as
+\(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x) p(v) p(d)\).
+The conjugate momentum $v$ typically used in HMC algorithms has a known and easy to sample distribution.
 %
-Here, we've introduced a binary direction variable (distributed independently of both \(x\) and \(v\))
-\(d\sim\mathcal{U}(+,-)\), which is resampled following each Metropolis-Hastings accept/reject step, and can be
-interpreted as determining the ``direction'' (forward/backward) of our update.
+The binary direction variable, as introduced in L2HMC~\citep{levy2017},
+\(d\in\mathcal{U}(+,-)\), %which is resampled following each Metropolis-Hastings accept/reject step, and can be
+%interpreted as determining
+denoting the ``direction'' (forward/backward) of our update.
 %
-The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-\in \{x, v\}\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
+%The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
+%\in \{x, v\}\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
 %
 
+DLHMC algorithm further generalize the leapfrog steps in L2HMC using individual neural networks.
+Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for the $k$-th layer,
+to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward leapfrog layer.
+Subsequently the $k+1$-th layer uses $\xi_{k+1}=(x''_k,v''_k,d_k)$ is its input.
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
 %
 \begin{align}
@@ -203,22 +213,23 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
          + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
 \end{align}
 %
-where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
-\(v\) respectively) networks' inputs,\footnote{%
+where: (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\) and \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
+\(v\) respectively) networks' inputs\footnote{%
  The $v$ network is independent of the variables being updated,
- the $x$ network will be made independent with the mask $m$ below.},
-   (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
-\Lambda^{\pm}_{k}\), and (3.) \(k=0,1,\ldots,N_{\mathrm{LF}}\) denotes the current leapfrog step along the trajectory .
+ the $x$ network will be made independent with the mask $m^k$.};
+  (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
+\Lambda^{\pm}_{k}\); (3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}\}\) denotes the current leapfrog step along the trajectory.
 %
-We include in \Figref{fig:network} an illustration of the network architecture used for the updates \Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}.
+We include in \Figref{fig:network} an illustration of the network architecture of the $k$-th leapfrog layer
+used for the updates in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/network9.pdf}
-   \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
+   \includegraphics[width=\textwidth]{figures/network10.pdf}
+   \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.}
 \end{figure}
 
-Using this notation, we can write the complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
+Using this notation, we can write a complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
    To obtain the expression for the reverse direction, we can invert each of the
    \(\Gamma^{-}\equiv{\left(\Gamma^{+}\right)}^{-1}, \Lambda^{-}\equiv{\left(\Lambda^{+}\right)}^{-1}\) functions, and
    perform the updates in the opposite order.
@@ -258,11 +269,15 @@ However, unlike in the expression for HMC, we must take into account the overall
 \(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime\prime}_{k}}{\partial
    v_{k}}\right| = \exp{\left(\tfrac{1}{2}{\varepsilon^{k}_{v} s^{k}_{v}(\zeta_{v_{k}})}\right)}\),
    \(\left|\tfrac{\partial x^{\prime\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}})\right)}\).
+where we keep the Jacobian factor for individual degree of freedom tractable.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:lattice_gauge_theory}Lattice Gauge Theory}
+\section{\label{sec:lattice_gauge_theory}U(1) Lattice Gauge Theory}
 %
+Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics.
+It is the predominant method that can be computed numerically, and widely used for simulating subatomic particles and nuclei.
+Here we describe the U(1) gauge (QED), and apply our DLHMC in 2 dimensional systems.
 Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
 variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site
 \(n\).
@@ -270,17 +285,20 @@ variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direc
 We can write our target distribution in terms of the Wilson action \(S_{\beta}(x)\) as
 %
 \begin{equation}
-   p_{t}(x) = e^{-\gamma_{t} S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta \sum_{P}1 - \cos(x_{P})
+   p_{t}(x) = \frac{1}{Z}e^{-\gamma_{t} S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta \sum_{P}1 - \cos(x_{P})
    \label{eq:wilsonaction}
 \end{equation}
 %
-where (\(1\).) \(\gamma_{t}\) is a scaling factor (\(\|\gamma_{t}\|<1\)) that is slowly annealed during training (\Secref{sec:annealing}) and (\(2\).) \(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is the sum of the link
-variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}.
+where $Z$ is the intractable normalization;
+\(\gamma_{t}\) is a scaling factor (\(\|\gamma_{t}\|<1\)) slowly annealed during training (\Secref{sec:annealing});
+\(x_{P} \equiv x_{\mu}(n) + x_{\nu}(n+\hat{\mu}) - x_{\mu}(n+\hat{\nu}) -x_{\nu}(n)\) is a combination of link
+variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}; and the sum is over all
+such plaquettes on the lattice.
 %
 Here, \(\beta = 2 / g_{0}^{2}\) is a coupling constant and \(\beta\rightarrow\infty\) recovers the continuum limit of the theory. 
 %
 
-Physically, each lattice configuration can be characterized by its topological charge, \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), defined as
+Physically, each lattice configuration has its topological charge, \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), defined as
 %
 \begin{equation}
       \mathcal{Q}_{\mathbb{Z}}(x) \equiv \frac{1}{2\pi}\sum_{P}\left\lfloor x_{P}\right\rfloor,
@@ -289,7 +307,8 @@ Physically, each lattice configuration can be characterized by its topological c
    \label{eq:intcharge}
 \end{equation}
 %
-Current methods are severely limited in their ability to mix between different topologies, a phenomenon known as topological freezing.
+Current methods are severely limited in their ability to mix between different topologies, a phenomenon known as topological freezing,
+when simulation approaches the continuum limit.
 %
 For this reason, we wish to construct a loss function that encourages our sampler to explore different topological sectors.
 %
@@ -299,8 +318,9 @@ In order to do so, we introduce a continuous version of the topological charge, 
     \mathcal{Q}_{\mathbb{R}} \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}).
     \label{eq:sincharge}
 \end{equation}
-%
-This quantity has the advantage of being real-valued to help prevent numerical instability during training.
+% [it's always real value]
+%This quantity has the advantage of being real-valued to help prevent numerical instability during training.
+This quantity has the advantage of being continuously differentiable, which is important for training the deep neural network.
 %
 Our loss function is then defined as
 %
@@ -314,12 +334,18 @@ where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\pri
 %
 %
 
-\section{\label{sec:braindump}Brain dump}
+\section{\label{sec:results}Results}
 %
-Using the training procedure in \Secref{sec:algorithm} with the annealing schedule from \Secref{sec:annealing}, we are able to train our sampler for some fixed number of training steps and then run inference on the trained model.
+We apply our DLHMC algorithm with
+the training procedure in \Secref{sec:algorithm} and the annealing schedule from \Secref{sec:annealing}
+to the 2D U(1) gauge theory with parameters gradually approaching the continuum limit.
+%We are able to train our sampler for some fixed number of training steps and then run inference on the trained model.
+We then run inference to generate the Markov chain using the trained model and compare its efficiency with HMC.
 %
 
-During training we maintain a buffer of \(M=2048\) chains which are updated in parallel.
+For this experiment, we used a batch size of $M=2048$, [PLEASE MORE DEEP LEARNING PARAMETERS]
+We trained our models using the supercomputer ThetaGPU at Argonne Leadership Facility.  We 
+%During training we maintain a buffer of \(M=2048\) chains which are updated in parallel.
 %
 
 We evaluate the loss function and update our weights accordingly at the end of each trajectory prior to performing the Metropolis-Hastings accept/reject step.
@@ -397,13 +423,16 @@ We believe that this ability to increase and decrease the energy within a trajec
 %
 
 \subsubsection*{Acknowledgments}
-This research was performed on ThetaGPU using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE office of science user
-facility supported under contract DE\_AC02--06CH11357.%
+This research was performed on ThetaGPU using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE Office of Science User
+Facility supported under Contract DE\_AC02--06CH11357. 
 %
 This work describes objective technical results and analysis.
 %
-Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the u.s.
-doe or the united states government.
+Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the U.S.
+DOE or the United States Government.
+%
+
+Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its many data science libraries \citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251}
 
 \bibliography{iclr2021_conference}
 \bibliographystyle{iclr2021_conference}
