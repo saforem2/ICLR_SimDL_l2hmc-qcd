@@ -108,12 +108,16 @@
 %\end{enumerate}
 %%
 \section{\label{sec:introduction}Introduction}
-In \citet{levy2017}, the authors propose the L2HMC (Learning to Hamiltonian Monte Carlo) algorithm, and demonstrate
-its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of two-dimensional target
+In \citet{levy2017}, the authors propose the Learning to Hamiltonian Monte Carlo (L2HMC) algorithm, and demonstrate
+its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety of %two-dimensional %% they have higher DOF
+target
 distributions.
 %
-In particular, they show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are typically inaccessible with traditional HMC.
+%In particular, 
+They show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are %typically
+inaccessible with traditional HMC.
 %
+In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose 
 This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{schaefer2009investigating,cossu2018testing}.
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
@@ -129,7 +133,7 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       %
       \begin{equation}
           \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-              \left[-\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
+              \left[-\delta(\xi^{\prime}, \xi) A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
           \delta(\xi^{\prime}, \xi) \equiv
       {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}
           }
@@ -171,8 +175,7 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
 \Secref{subsec:HMC}.
 %
-We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x)\cdot p(v)\cdot
-p(d)\).
+We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x) p(v) p(d)\).
 %
 Here, we've introduced a binary direction variable (distributed independently of both \(x\) and \(v\))
 \(d\sim\mathcal{U}(+,-)\), which is resampled following each Metropolis-Hastings accept/reject step, and can be
@@ -205,7 +208,7 @@ We include in \Figref{fig:network} an illustration of the network architecture u
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/network7.pdf}
+   \includegraphics[width=\textwidth]{figures/network8.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
 \end{figure}
 
@@ -247,8 +250,8 @@ As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapf
 %
 However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
 \(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime\prime}_{k}}{\partial
-   v_{k}}\right| = \exp{\left(\tfrac{1}{2}{\varepsilon^{k}_{v}\cdot s^{k}_{v}(\zeta_{v_{k}})}\right)}\),
-   \(\left|\tfrac{\partial x^{\prime\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x}\cdot s^{k}_{x}(\zeta_{x_{k}})\right)}\).
+   v_{k}}\right| = \exp{\left(\tfrac{1}{2}{\varepsilon^{k}_{v} s^{k}_{v}(\zeta_{v_{k}})}\right)}\),
+   \(\left|\tfrac{\partial x^{\prime\prime}_{k}}{\partial x_{k}}\right| = \exp{\left(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}})\right)}\).
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -297,7 +300,7 @@ Our loss function is then defined as
 %
 \begin{equation}
    \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-      \left[-\delta(\xi^{\prime}, \xi)\cdot A(\xi^{\prime}|\xi)\right]
+      \left[-\delta(\xi^{\prime}, \xi) A(\xi^{\prime}|\xi)\right]
    }
 \end{equation}
 %
@@ -328,7 +331,7 @@ We can see in \Figref{fig:autocorr_vs_beta}, that the trained model out performs
 To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of \(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
 %
 
-By introducing the scaling \(N_{\mathrm{LF}}\cdot\tau_{\mathrm{int}}\) we more accurately capture the computational effort per step when comparing the two approaches.
+By introducing the scaling \(N_{\mathrm{LF}} \tau_{\mathrm{int}}\) we more accurately capture the computational effort per step when comparing the two approaches.
 %
 
 We see in ~\Figref{fig:topological_freezing} that HMC remains stuck at a particular value for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
@@ -416,7 +419,7 @@ In this case, HMC begins by augmenting the state space with a fictitious momentu
 distributed independently of \(x\), i.e.\ \(v\sim\mathcal{N}(0, \mathbbm{1})\).
 %
 Our joint distribution can then be written as \(%
-   p(x, v) = p(x)\cdot p(v) \propto e^{-S(x)}\cdot e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
+   p(x, v) = p(x) p(v) \propto e^{-S(x)} e^{-\frac{1}{2}v^{T}v} = e^{-\mathcal{H}(x, v)}
 \), where \(\mathcal{H}(x, v)\) is the Hamiltonian of the joint (x, v) system.
 %
 This system obeys Hamilton's equations: % 
@@ -441,7 +444,7 @@ proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by perfo
    \)
 \end{enumerate}
 %
-We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon\cdot N_{\mathrm{LF}}\) by
+We can then construct a complete \emph{trajectory} of length \(\lambda = \varepsilon N_{\mathrm{LF}}\) by
 performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence.
 %
 At the end of our trajectory, we either accept or reject the proposal configuration according to the Metropolis-Hastings
@@ -466,7 +469,7 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 %
 To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing schedule}
 during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots,
-\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
+\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \ldots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
 \gamma_{t} \ll 1\).
 %
 Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
