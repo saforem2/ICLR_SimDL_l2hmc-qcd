@@ -378,6 +378,15 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
 %During inference, we record the values of quantities of interest and compare them to the results obtained from running inference using generic HMC.
 %
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+   \centering
+      \centering
+      \includegraphics[width=0.4\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
+      \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
+      \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
+   different trajectory lengths.}
+         % for HMC (black dashed line), trained model (solid blue line).}
+\end{wrapfigure}
 To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
 In order to more accurately capture the computational effort per step between the two approaches we scale our estimate of the integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).
@@ -399,20 +408,9 @@ We believe that this ability to vary the energy during the trajectory helps the 
 %If we think of the average plaquette as being an energy density, we can see in \Figref{fig:plaqsf}, \Figref{fig:hwf} that our sampler experiences a gradual increase in energy during the first half of the trajectory before decreasing back to its original value at the end.
 %
 %
-
 %
 \begin{figure}[htpb]
    \centering
-   %
-   \begin{subfigure}{\textwidth}
-      \centering
-      \includegraphics[width=0.4\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
-      \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
-   different trajectory lengths.}
-         % for HMC (black dashed line), trained model (solid blue line).}
-   \end{subfigure}
-   \hfill
    %
    \begin{subfigure}{\textwidth}
       \centering
