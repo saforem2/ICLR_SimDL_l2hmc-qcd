@@ -117,7 +117,8 @@ distributions.
 They show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are %typically
 inaccessible with traditional HMC.
 %
-In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose 
+In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose new Markov Chain states,
+which 
 This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{schaefer2009investigating,cossu2018testing}.
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
@@ -264,7 +265,7 @@ variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direc
 We can write our target distribution in terms of the Wilson action \(S_{\beta}(x)\) as
 %
 \begin{equation}
-   p_{t}(x) = e^{-\gamma_{t}\cdot S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta\cdot \sum_{P}1 - \cos(x_{P})
+   p_{t}(x) = e^{-\gamma_{t} S_{\beta}(x)},\quad\text{with}\quad S_{\beta}(x) = \beta \sum_{P}1 - \cos(x_{P})
    \label{eq:wilsonaction}
 \end{equation}
 %
