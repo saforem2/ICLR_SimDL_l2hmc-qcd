@@ -123,7 +123,7 @@ In this paper, we propose a generalized sampler using a deep neural network that
 which is made exact with the help of Metropolis-Hastings \citep{zbMATH03349185} algorithm.
 We target our Deep Learning Hamiltonian Monte Carlo (DLHMC) algorithm to simulating lattice gauge theories,
 where state-of-the-art simulations have billions of degrees of freedom and run on supercomputers with thousands of nodes,
-yet suffers exponential slowing downs when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
+yet suffers an exponential slowdown when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
 %The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 
 \section{\label{sec:main_contributions}Main Contributions}
@@ -192,7 +192,7 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 }.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:method}DLHMC algorithm}
+\section{\label{sec:method}DLHMC Algorithm}
 %
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and set up some of the relevant notation in
 \Secref{subsec:HMC}.
@@ -233,7 +233,7 @@ where: (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\) and \(\zeta_{x_{k}
  The $v$ network is independent of the variables being updated,
  the $x$ network will be made independent with the mask $m^k$.};
   (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
-\Lambda^{\pm}_{k}\); (3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}\}\) denotes the current leapfrog step along the trajectory.
+\Lambda^{\pm}_{k}\); (3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}-1\}\) denotes the current leapfrog step along the trajectory.
 %
 We include in \Figref{fig:network} an illustration of the network architecture of the $k$-th leapfrog layer
 used for the updates in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.
@@ -295,7 +295,7 @@ where we keep the Jacobian factor for individual degree of freedom tractable.
       \includegraphics[width=0.2\textwidth]{figures/plaq_tikz.pdf}
       \caption{\label{fig:plaquette}Plaquette}%, \(P\)}
 \end{wrapfigure}
-Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics.
+Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics (QCD).
 It is the predominant method that can be computed numerically, and widely used for simulating subatomic particles and nuclei.
 Here we describe the U(1) gauge (QED), and apply our DLHMC in 2 dimensional systems.
 Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
@@ -398,9 +398,14 @@ To ensure the validity of our results, each trained run was compared to multiple
 %
 We see in \Figref{fig:topological_freezing} that HMC remains stuck at a particular value of \(\mathcal{Q}_{\mathbb{Z}}\) for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
 %
-In order to better understand the mechanism driving this improved behavior, we evaluate different quantities at each of the intermediate leapfrog layers \(k=0, 1, 2, \ldots, N_{\mathrm{LF}}\) during the trajectory.
+In order to better understand the mechanism driving this improved behavior, we evaluate different quantities
+of the system during its passing through
+the $N_{\mathrm{LF}}$ leapfrog layers.% \(k=0, 1, \ldots, N_{\mathrm{LF}}\) during the trajectory.
 %
-We can see in \Figref{fig:plaqsf} and \Figref{fig:hwf} that our sampler exhibits an increase in energy during the first half of the trajectory before returning back to its original value.
+\Figref{fig:plaqsf} and \Figref{fig:hwf} show the average plaquette value and the modified energy of the
+Markov state, during the transformation via $N_{\mathrm{LF}}=10$ leapfrog layers.
+Our sampler artificially increased the energy density of the physical system during the first half of the trajectory before returning back to its original physical value.
+This is not a prescribed behavior, but self-learned during the training.
 %
 We believe that this ability to vary the energy during the trajectory helps the sampler to overcome energy barriers between topological sectors whereas HMC remains stuck.
 %
@@ -445,7 +450,13 @@ We believe that this ability to vary the energy during the trajectory helps the 
 %
 
 \section{Discussion and Further Research}
+We propose DLHMC as an efficient algorithm for MCMC, and observed a dramatic improvement
+in simulating 2D $U(1)$ gauge theory.
 Being able to efficiently tunnel topological sectors is a significant first step toward efficient
+simulating lattice gauge theories describing our universe.
+%
+We plan to continue developing this approach with the goal of eventually scaling up to the 4D \(SU(3)\) gauge theory of QCD.
+%
 \subsubsection*{Acknowledgments}
 This research was supported by the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S. Department of Energy Office of Science and the National Nuclear Security Administration.
 This research was performed using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE Office of Science User
