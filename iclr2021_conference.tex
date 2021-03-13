@@ -126,7 +126,8 @@ yet suffers exponential slow downs when approaching continuum physics \citep{ksc
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
 \begin{enumerate}
-   \item We propose a generalized version of the L2HMC algorithm that uses different networks (with different step
+   \item We propose the DLHMC algorithm as a generalized L2HMC algorithm,
+      using a stack of distinct neural network layers as leapfrog steps that uses different networks (with different step
       sizes) for each distinct leapfrog step.
       %
       We represent this generalization by carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}\) through the
@@ -204,8 +205,9 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
 %
 where (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\), \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
 \(v\) respectively) networks' inputs,\footnote{%
-   Each of which is independent of the variable being updated.
-}, (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
+ The $v$ network is independent of the variables being updated,
+ the $x$ network will be made independent with the mask $m$ below.},
+   (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
 \Lambda^{\pm}_{k}\), and (3.) \(k=0,1,\ldots,N_{\mathrm{LF}}\) denotes the current leapfrog step along the trajectory .
 %
 We include in \Figref{fig:network} an illustration of the network architecture used for the updates \Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}.
