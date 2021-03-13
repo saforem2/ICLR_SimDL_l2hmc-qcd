@@ -42,8 +42,8 @@
 \definecolor{blue1}{HTML}{448aff}
 \definecolor{pink1}{HTML}{FA5477}
 
-\newcommand{\mbart}{\textcolor{red}{\bar{m}^{t}}}
-\newcommand{\mt}{\textcolor{blue}{m^{t}}}
+\newcommand{\mbart}{\textcolor{red}{\bar{m}^{k}}}
+\newcommand{\mt}{\textcolor{blue}{m^{k}}}
 
 
 
@@ -136,7 +136,7 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       %
       We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
       the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), (\(i =(x, v)\), \(k = (0, 1, \ldots, N_{\mathrm{LF}})\))
-      introduced in the augmented leapfrog updates in \Secref{sec:l2hmc}.
+      introduced in the augmented leapfrog updates in \Secref{sec:method}.
       %
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    \item We apply the proposed method to a \(1+1\)-dimensional \(U(1)\) lattice gauge theory defined on a
@@ -337,9 +337,8 @@ In order to better understand the mechanism driving this improved behavior, we e
 If we think of the average plaquette as being an energy density, we can see in \Figref{fig:plaqsf}, \Figref{fig:hwf} that our sampler experiences a gradual increase in energy during the first half of the trajectory before decreasing back to its original value at the end.
 %
 We believe that this ability to increase and decrease the energy within a trajectory helps the sampler to overcome energy barriers between topological sectors whereas HMC remains stuck.
+%
 
-
-We believe that it is because of this ability to increase and decrease the energy within a trajectory that is one of the main contributions to the observed sampling improvements.
 %
 \begin{figure}[htpb]
    \centering
@@ -541,22 +540,21 @@ our progress through the training phase, which can be written explicitly as
       \end{cases}%
       \)\;
    }\;
-   % \caption{\label{alg}Training algorithm}
-\end{algorithm}
-
-\section{\label{sec:hyperparameters}Hyperparameters}
-\begin{table}[]
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
-\hline
- & \(N_{\mathrm{LF}}\) & \(\beta_{0}\) & \(\beta_{1}\) & train steps & hidden layer sizes & activation function & dropout probability & batch norm layer &  \\ \hline
-1 &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-  &  &  &  &  &  &  &  &  &  \\ \hline
-\end{tabular}
-\end{table}
-
+\end{algorithm}%
+%
+%\section{\label{sec:hyperparameters}Hyperparameters}
+%\begin{table}[]
+%\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
+%\hline
+% & \(N_{\mathrm{LF}}\) & \(\beta_{0}\) & \(\beta_{1}\) & train steps & hidden layer sizes & activation function & dropout probability & batch norm layer &  \\ \hline
+%1 &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%  &  &  &  &  &  &  &  &  &  \\ \hline
+%\end{tabular}
+%\end{table}
+%
 \end{document}
