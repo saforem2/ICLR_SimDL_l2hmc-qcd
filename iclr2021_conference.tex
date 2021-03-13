@@ -331,7 +331,7 @@ By introducing the scaling \(N_{\mathrm{LF}}\cdot\tau_{\mathrm{int}}\) we more a
 We see in ~\Figref{fig:topological_freezing} that HMC remains stuck at a particular value for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
 %
 
-In order to better understand the mechanism driving this improved behavior, we evaluate different quantities at intermediate leapfrog layers during the trajectory.
+In order to better understand the mechanism driving this improved behavior, we evaluate different quantities at each of the intermediate leapfrog layers \(k=0, 1, 2, \ldots, N_{\mathrm{LF}}\) during the trajectory.
 %
 
 If we think of the average plaquette as being an energy density, we can see in \Figref{fig:plaqsf}, \Figref{fig:hwf} that our sampler experiences a gradual increase in energy during the first half of the trajectory before decreasing back to its original value at the end.
@@ -360,7 +360,7 @@ We believe that this ability to increase and decrease the energy within a trajec
    %
    \begin{subfigure}{\textwidth}
       \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
-      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{R}}\) vs MC
+      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{Z}}\) vs MC
       step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
    \end{subfigure}
    %
