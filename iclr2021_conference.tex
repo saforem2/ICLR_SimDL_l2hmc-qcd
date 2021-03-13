@@ -118,8 +118,11 @@ They show that the trained L2HMC sampler is capable of mixing between modes by e
 inaccessible with traditional HMC.
 %
 In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose new Markov Chain states,
-which 
-This ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{schaefer2009investigating,cossu2018testing}.
+which is made exact with the help of Metropolis-Hastings \citep{...} algorithm.
+We target our Deep Learning Hamiltonian Monte Carlo (DLHMC) algorithm to simulating lattice gauge theories,
+where state-of-the-art simulations have billions of degrees of freedom and run on supercomputers with thousands of nodes,
+yet suffers exponential slow downs when approaching continuum physics \citep{kschaefer2009investigating,cossu2018testing}.
+%The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 %
 \subsection{\label{subsec:main_contributions}Main Contributions}
 \begin{enumerate}
@@ -134,7 +137,7 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       %
       \begin{equation}
           \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-              \left[-\delta(\xi^{\prime}, \xi) A(\xi^{\prime}|\xi)\right],\quad\text{with}\quad%
+              \left[ \, -\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)\,\right],\quad\text{with}\quad%
           \delta(\xi^{\prime}, \xi) \equiv
       {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}
           }
@@ -143,7 +146,7 @@ This ability to mix between isolated modes of a multi-modal target distribution 
       where \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) is the real-valued topological charge, defined in \Secref{sec:lattice_gauge_theory}.
       %
       We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
-      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), (\(i =(x, v)\), \(k = (0, 1, \ldots, N_{\mathrm{LF}})\))
+      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), (\(i \in\{x, v\}\), \(k \in \{0, 1, \ldots, N_{\mathrm{LF}}\}\))
       introduced in the augmented leapfrog updates in \Secref{sec:method}.
       %
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,7 +176,7 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:method}Method}
 %
-We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and setup some of the relevant notation in
+We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and set up some of the relevant notation in
 \Secref{subsec:HMC}.
 %
 We denote a complete state by \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x) p(v) p(d)\).
@@ -183,7 +186,7 @@ Here, we've introduced a binary direction variable (distributed independently of
 interpreted as determining the ``direction'' (forward/backward) of our update.
 %
 The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-= x, v\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
+\in \{x, v\}\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
 %
 
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
@@ -209,7 +212,7 @@ We include in \Figref{fig:network} an illustration of the network architecture u
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/network8.pdf}
+   \includegraphics[width=\textwidth]{figures/network9.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in the \(x\) update, \Eqref{eq:new_position_update}.}
 \end{figure}
 
