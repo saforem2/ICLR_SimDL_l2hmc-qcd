@@ -48,14 +48,13 @@
 \newcommand{\mt}{\textcolor{blue}{m^{k}}}
 
 
+% \iclrfinalcopy% Uncomment for camera-ready version, but NOT for submission.
 
-%\title{Neural Transformations for \\Efficient Topological Mixing}
 \title{Deep Learning Hamiltonian Monte Carlo}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
 % Non-anonymous submissions will be rejected without review.
-
 \author{Sam Foreman, Xiao-Yong Jin\& James Osborn\thanks{\hyperref{%
       https://github.com/saforem2/l2hmc-qcd
    }{https://github.com/saforem2/l2hmc-qcd} \\
@@ -69,7 +68,6 @@
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
 
-% \iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 \begin{document}
 
 
@@ -117,7 +115,7 @@ distributions.
 %
 %In particular, 
 They show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are %typically
-inaccessible with traditional HMC.
+inaccessible with traditional HMC.\@
 %
 In this paper, we propose a generalized sampler using a deep neural network that is self trained to propose new Markov Chain states,
 which is made exact with the help of Metropolis-Hastings \citep{zbMATH03349185} algorithm.
@@ -243,7 +241,7 @@ used for the updates in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_positio
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=0.8\textwidth]{figures/network12.pdf}
+   \includegraphics[width=\textwidth]{figures/lflayer.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.}
 \end{figure}
 
@@ -291,7 +289,7 @@ where we keep the Jacobian factor for individual degree of freedom tractable.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:lattice_gauge_theory}U(1) Lattice Gauge Theory}
+\section{\label{sec:lattice_gauge_theory}\(U(1)\) Lattice Gauge Theory}
 %
 \begin{wrapfigure}{r}{0.2\textwidth}
       \centering
@@ -300,7 +298,7 @@ where we keep the Jacobian factor for individual degree of freedom tractable.
 \end{wrapfigure}
 Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics (QCD).
 It is the predominant method that can be computed numerically, and widely used for simulating subatomic particles and nuclei.
-Here we describe the U(1) gauge (QED), and apply our DLHMC in 2 dimensional systems.
+Here we describe the \(U(1)\) gauge (QED), and apply our DLHMC in 2 dimensional systems.
 Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
 variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site
 \(n\).
@@ -363,7 +361,7 @@ We apply our DLHMC algorithm with
 the training procedure in \Secref{sec:algorithm} and the annealing schedule from \Secref{sec:annealing}
 to the 2D $U(1)$ gauge theory with parameters gradually approaching the continuum limit.
 %We are able to train our sampler for some fixed number of training steps and then run inference on the trained model.
-We then run inference to generate the Markov chain using the trained model and compare its efficiency with HMC.
+We then run inference to generate the Markov chain using the trained model and compare its efficiency with HMC.\@
 %
 %For this experiment, we used a batch size of $M=2048$, [PLEASE MORE DEEP LEARNING PARAMETERS]
 %We trained our models using the supercomputer ThetaGPU at Argonne Leadership Facility.  We used [ NODE-HOURS A100 TENSORFLOW HOROVOD].
@@ -459,7 +457,8 @@ in simulating 2D $U(1)$ gauge theory.
 Being able to efficiently tunnel topological sectors is a significant first step toward efficient
 simulating lattice gauge theories describing our universe.
 %
-We plan to continue developing this approach with the goal of eventually scaling up to the 4D \(SU(3)\) gauge theory of QCD.
+We plan to continue developing this approach with the goal of eventually scaling up to the 4D \(SU(3)\) gauge theory of
+QCD.\@
 %
 \subsubsection*{Acknowledgments}
 This research was supported by the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S. Department of Energy Office of Science and the National Nuclear Security Administration.
@@ -544,7 +543,7 @@ The generic leapfrog integrator is known to be symplectic (conserves energy), so
 %
 To help our sampler overcome the large energy barriers between isolated modes, we introduce an \emph{annealing schedule}
 during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = \{\gamma_{0}, \gamma_{1}, \ldots,
-\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \ldots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
+\gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
 \gamma_{t} \ll 1\).
 %
 Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
@@ -561,6 +560,7 @@ our progress through the training phase, which can be written explicitly as
    \label{eq:targetannealing}
 \end{equation}
 %
+\clearpage
 \section{\label{sec:algorithm}Training Algorithm}
 %
 \begin{algorithm}[htpb]%
@@ -585,36 +585,37 @@ our progress through the training phase, which can be written explicitly as
          %(5.) \texttt{Batch of initial states}, \(x\)
       % {}\\
       \begin{enumerate}
-         \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
             A(\xi^{\prime}|\xi))\)
+         \item \texttt{Batch of initial states}, \(x\)
          \item \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
          \item \texttt{Annealing schedule}, \({\{\gamma_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-         \item \texttt{Batch of initial states}, \(x\)
+         \item \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\gamma_{t} S_{\beta}(x)}\)
       \end{enumerate}
    }%
    \texttt{Initialize weights} \(\theta\)\;
    % {}\;
    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
       % {}\;
-      \texttt{update:} \(p_{t}(x)\propto e^{-\beta_{t}U(x)}\)\;
-      \texttt{resample:} \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
-      \texttt{resample:} \(d\sim\mathcal{U}(+,-)\)\;
-      \texttt{construct:} \(\xi \equiv (x, v, d)\)\;
+      \texttt{update } \(p_{t}(x)\propto e^{-\gamma_{t}S_{\beta}(x)}\)\;
+      \texttt{resample } \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
+      \texttt{resample } \(d\sim\mathcal{U}(+,-)\)\;
+      \texttt{construct } \(\xi_{0} \equiv (x_{0}, v_{0}, d_{0})\)\;
       % {}\;
-      \For{\(0 \leq \ell < N_{\mathrm{LF}}\)}{%
-         \texttt{propose:} \(\xi_{\ell}^{\prime}\leftarrow\mathbf{FL}_{\ell}^{\pm}\xi_{\ell}\)
+      \For{\(0 \leq k < N_{\mathrm{LF}}\)}{%
+         \texttt{propose (leapfrog layer) } \(\xi_{k}^{\prime}\leftarrow \xi_{k}\)
+         % \texttt{propose } \(\xi_{k}^{\prime}\leftarrow\mathbf{FL}_{k}^{\pm}\xi_{k}\)
       }
-      \texttt{compute:} \(A(\xi^{\prime}|\xi) =%
+      \texttt{compute } \(A(\xi^{\prime}|\xi) =%
       \min\left\{1,\frac{p(\xi^{\prime})}{p(\xi)}\left|\frac{\partial%
       \xi^{\prime}}{\partial \xi^{T}}\right|\right\}\)\;
       % {}\;
-      \texttt{update:} \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
+      \texttt{update } \(\mathcal{L}\leftarrow \mathcal{L}_{\theta}(\xi^{\prime},\xi,%
       A(\xi^{\prime}|\xi))\)\;
       % {}\;
-      \texttt{backprop:} \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
+      \texttt{backprop } \(\theta\ \leftarrow\ \theta-\alpha_t \nabla_{\theta} \mathcal{L}\)\;
       % {}\;
-      \texttt{assign:} \(x_{t+1} \leftarrow
+      \texttt{assign } \(x_{t+1} \leftarrow
       \begin{cases}
          x^{\prime} &\mbox{with probability } A(\xi^{\prime}|\xi) \\
          x &\mbox{with probability } (1 - A(\xi^{\prime}|\xi)).%
