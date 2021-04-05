@@ -82,8 +82,8 @@
    different topologies in a two-dimensional lattice gauge theory.
    %
    %In particular, 
-   We demonstrate that our model is able to successfully mix between modes of different topology,
-   significantly reducing the computational cost required to generate independent gauge configurations.
+   We demonstrate that our model is able to successfully mix between modes of different topologies,
+   significantly reducing the computational cost required to generate independent gauge field configurations.
 \end{abstract}
 
 % \section{\label{sec:introduction}Introduction}
@@ -123,7 +123,7 @@ In this paper, we propose a generalized sampler using a deep neural network that
 which is made exact with the help of Metropolis-Hastings \citep{zbMATH03349185} algorithm.
 We target our Deep Learning Hamiltonian Monte Carlo (DLHMC) algorithm to simulating lattice gauge theories,
 where state-of-the-art simulations have billions of degrees of freedom and run on supercomputers with thousands of nodes,
-yet suffers an exponential slowdown when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
+yet suffer an exponential slowdown when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
 %The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 
 \section{\label{sec:main_contributions}Main Contributions}
@@ -136,8 +136,8 @@ We propose the DLHMC algorithm as a generalized HMC algorithm,
       %
       Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for $N_{\mathrm{LF}}$
       leapfrog layers, performs the
-      augmented leapfrog equations, (\Eqref{eq:new_momentum_update}, \Eqref{eq:new_position_update}), indicating that
-      these functions are parametrized by different neural networks.
+      augmented leapfrog equations (\Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}), % indicating that
+      which are parametrized by different neural networks.
       %
       
 %   \item
@@ -166,12 +166,15 @@ We apply the proposed method to a \(2\)-dimensional \(U(1)\) lattice gauge theor
 We specifically designed a loss function for our physical system,
 encouraging the tunneling of topological properties.
       We see a significant reduction in the
-      computational cost using DLHMC, as measured by the integrated autocorrelation time of the topological charge
-      \(\tau_{\mathrm{int}}^{\mathcal{Q}}\).
+      computational cost using DLHMC, as measured by the integrated autocorrelation time of the topological charge.
+      %\(\tau_{\mathrm{int}}^{\mathcal{Q}}\).
       %
-      We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants
-      \(\beta\), and show that our trained model consistently outperforms traditional HMC (see
+      We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants,
+      %\(\beta\),
+      and show that our trained models consistently outperform traditional HMC (see
       \Figref{fig:autocorr_vs_beta}).
+      Models trained on smaller coupling constants, when applied to a larger coupling constant, require
+      only minimal retraining.
 %
 We find that the efficiency in tunneling topological sectors of our trained DLHMC sampler
 is explained by the behavior of the physical system as it passes through the deep neural network,
@@ -358,7 +361,7 @@ where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\pri
 %
 We apply our DLHMC algorithm with
 the training procedure in \Secref{sec:algorithm} and the annealing schedule from \Secref{sec:annealing}
-to the 2D U(1) gauge theory with parameters gradually approaching the continuum limit.
+to the 2D $U(1)$ gauge theory with parameters gradually approaching the continuum limit.
 %We are able to train our sampler for some fixed number of training steps and then run inference on the trained model.
 We then run inference to generate the Markov chain using the trained model and compare its efficiency with HMC.
 %
@@ -386,12 +389,12 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
       \includegraphics[width=0.4\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
       \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
-   different trajectory lengths.}
+   simulation cost.} %different trajectory lengths.}
          % for HMC (black dashed line), trained model (solid blue line).}
 \end{wrapfigure}
 To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
-In order to more accurately capture the computational effort per step between the two approaches we scale our estimate of the integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).
+In order to more accurately capture the computational effort between the two approaches we scale our estimate of the integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).
 We can see in \Figref{fig:autocorr_vs_beta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots, 7\).
 %
 To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of \(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
@@ -402,12 +405,13 @@ In order to better understand the mechanism driving this improved behavior, we e
 of the system during its passing through
 the $N_{\mathrm{LF}}$ leapfrog layers.% \(k=0, 1, \ldots, N_{\mathrm{LF}}\) during the trajectory.
 %
-\Figref{fig:plaqsf} and \Figref{fig:hwf} show the average plaquette value and the modified energy of the
+\Figref{fig:plaqsf} and \Figref{fig:hwf} show the distribution over batches of the average plaquette value and the modified energy of the
 Markov state, during the transformation via $N_{\mathrm{LF}}=10$ leapfrog layers.
 Our sampler artificially increased the energy density of the physical system during the first half of the trajectory before returning back to its original physical value.
 This is not a prescribed behavior, but self-learned during the training.
 %
 We believe that this ability to vary the energy during the trajectory helps the sampler to overcome energy barriers between topological sectors whereas HMC remains stuck.
+As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibits mixing behavior at the middle of the deep neural network.
 %
 %By introducing the scaling \(N_{\mathrm{LF}} \tau_{\mathrm{int}}\) we more accurately capture the computational effort per step when comparing the two approaches.
 %
@@ -433,18 +437,18 @@ We believe that this ability to vary the energy during the trajectory helps the 
       \includegraphics[width=0.8\textwidth]{figures/plaqsf_1758.pdf}
       \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at intermediate leapfrog layers.}
    \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.32\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/sinQf_1755.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate leapfrog layers.}%
-   \end{subfigure}
    %
    \hfill
    \begin{subfigure}{0.32\textwidth}
       \centering
       \includegraphics[width=0.8\textwidth]{figures/extras/hwf.pdf}
       \caption{\label{fig:hwf}The readjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\), of the model at intermediate leapfrog layers.}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.32\textwidth}
+      \centering
+      \includegraphics[width=0.8\textwidth]{figures/sinQf_1755.pdf}
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate leapfrog layers.}%
    \end{subfigure}
 \end{figure}
 %
