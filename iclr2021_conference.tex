@@ -1,15 +1,15 @@
 %
 \documentclass{article} % For LaTeX2e
-\usepackage{iclr2021_conference,times}
+% \usepackage{iclr14submit_e,times}
+
 
 % Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\usepackage{iclr2021_conference,times}
 \input{math_commands.tex}
 
-\usepackage[unicode,linktocpage=true,breaklinks]{hyperref}% add hypertext capabilities
-% \usepackage{url}
 
 \usepackage{xcolor}
-\setlength{\marginparwidth}{2cm}
+% \setlength{\marginparwidth}{2cm}
 \usepackage{enumitem}
 \usepackage{bbm}
 \usepackage{natbib}
@@ -21,10 +21,27 @@
 \usepackage{bm}% bold math
 \usepackage{wrapfig}
 \usepackage{subcaption}
+\usepackage{microtype}
 \usepackage[normalem]{ulem}
 \usepackage[ruled, vlined,inoutnumbered,rightnl]{algorithm2e}
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows}
+\SetAlFnt{\footnotesize}
+\SetAlCapFnt{\footnotesize}
+\SetAlCapNameFnt{\footnotesize}
+
+\usepackage[pdfauthor={Sam Foreman},%
+   pdftitle={Deep Learning Hamiltonian Monte Carlo},%
+   % pagebackref=true,%
+   unicode,%
+   linktocpage=true,%
+   hyperfootnotes=true,
+   pdftex,
+]{hyperref}% add hypertext capabilities
+
+\usepackage{url}
+% \usepackage{tikz}
+% \usetikzlibrary{positioning,arrows}
+% \usepackage{times}
+
 \newcommand{\JCO}[1]{\textcolor{red}{[#1]}}
 
 \hypersetup{
@@ -34,7 +51,6 @@
   citecolor=cyan,
 }
 
-\usepackage{microtype}
 % \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
 % \usepackage[colorinlistoftodos]{todonotes}
 % \usepackage[ruled, vlined,linesnumbered,inoutnumbered,rightnl]{algorithm2e}
@@ -48,31 +64,33 @@
 \newcommand{\mt}{\textcolor{blue}{m^{k}}}
 
 
-% \iclrfinalcopy% Uncomment for camera-ready version, but NOT for submission.
 
 \title{Deep Learning Hamiltonian Monte Carlo}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
 % Non-anonymous submissions will be rejected without review.
-\author{Sam Foreman, Xiao-Yong Jin\& James Osborn\thanks{\hyperref{%
-      https://github.com/saforem2/l2hmc-qcd
-   }{https://github.com/saforem2/l2hmc-qcd} \\
+\author{Sam Foreman, Xiao-Yong Jin \& James Osborn
+\thanks{
+   \texttt{\href{mailto:foremans@anl.gov}{foremans@anl.gov}},
+   \texttt{\href{mailto:xjin@anl.gov}{xjin@anl.gov}},
+   \texttt{\href{mailto:osborn@alcf.anl.gov}{osborn@alcf.anl.gov}}
+}\\
+   %\thanks{\href{%
+   %    https://github.com/saforem2/l2hmc-qcd
+   % }{https://github.com/saforem2/l2hmc-qcd} \\
    Leadership Computing Facility\\
    Argonne National Laboratory\\
-   Lemont, IL 60439
-   \texttt{\{foremans,xjin,\}@anl.gov},%
-   \texttt{\{osborn\}@alcf.anl.gov}\\
-}}
+}
 
-\newcommand{\fix}{\marginpar{FIX}}
-\newcommand{\new}{\marginpar{NEW}}
+\iclrfinalcopy% Uncomment for camra-ready version, but NOT for submission.
+% \newcommand{\fix}{\marginpar{FIX}}
+% \newcommand{\new}{\marginpar{NEW}}
 
 \begin{document}
 
 
 \maketitle
-
 \begin{abstract}
    %We propose a generalized version of the L2HMC algorithm~\citep{levy2017},
    We generalize the Hamiltonian Monte Carlo algorithm with a stack of neural network layers,
@@ -82,30 +100,11 @@
    %In particular, 
    We demonstrate that our model is able to successfully mix between modes of different topologies,
    significantly reducing the computational cost required to generate independent gauge field configurations.
+   %
+   Our implementation is available at
+   \texttt{\href{https://github.com/saforem2/lh2mc-qcd}{https://github.com/saforem2/l2hmc-qcd}}.
 \end{abstract}
 
-% \section{\label{sec:introduction}Introduction}
-% \color{red}{TODO:\@ Complete introduction}\color{black}
-%\section{TODO}
-%\begin{enumerate}
-%   \item Instead of using a time step to vary the network inputs, we use completely different networks for each leapfrog
-%      step in our trajectory \textcolor{blue}{\(\ast\)}. \marginpar{\textcolor{blue}{\(\ast\) WIP}}
-%   \item Explain that ``instead of using \(\|x^{\prime}-x\|\), in \(\mathcal{L}_{\theta}\) we use \ldots''
-%   \item Remove ``During training we maintain a buffer of \(M=2048\)\ldots'' from \Secref{sec:main_contributions}
-%   %\item Combine \((5.)\), \((6.)\), \((7.)\) in \Secref{sec:main_contributions}
-%   \item Remove \Eqref{eq:wilsonaction}, combine with \(p_{t}(x)\) at the end of \Secref{sec:annealing}, and move
-%      inline. \textcolor{blue}{\(\ast\)}\marginpar{\textcolor{blue}{\(\ast\) WIP}}
-%   \item Explain \(\mathcal{Q}_{\mathbb{Z}}\) is a physical quantity (winding number), explain we want to maximize
-%      difference but need continuous variable for training, hence \(\mathcal{Q}_{\mathbb{R}}\)
-%   \item Change notation for lattice gauge theory, \(\varphi_{\mu}(x)\rightarrow x_{\mu}(n)\) to be consistent with
-%      \Secref{sec:l2hmc}.\marginpar{\textcolor{red}{\(\checkmark\) done}}
-%   \item Emphasize efforts on interpretability, analogy with understanding intermediate layers/structures in
-%      conv/fully-connected network.
-%  \item Don't need to include details about annealing schedule (save space).
-%  \item Instead of splitx figure, re-draw network diagram showing inputs/outputs and various layers. ``Generalized leapfrog''.
-%  \item \textbf{``Leapfrog layer''}: Show network diagram for a single leapfrog layer, indicate that each leapfrog step uses a separate leapfrog layer, explain how "Full-step position update, etc." are a single leapfrog layer with  index \(k\).
-%  
-%\end{enumerate}
 %%
 \section{\label{sec:introduction}Introduction}
 In \citet{levy2017}, the authors propose the Learning to Hamiltonian Monte Carlo (L2HMC) algorithm, and demonstrate
@@ -124,7 +123,7 @@ where state-of-the-art simulations have billions of degrees of freedom and run o
 yet suffer an exponential slowdown when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
 %The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 
-\section{\label{sec:main_contributions}Main Contributions}
+\section{\label{sec:maincontributions}Main Contributions}
 %\begin{enumerate}
 %   \item
 We propose the DLHMC algorithm as a generalized HMC algorithm,
@@ -134,7 +133,7 @@ We propose the DLHMC algorithm as a generalized HMC algorithm,
       %
       Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for $N_{\mathrm{LF}}$
       leapfrog layers, performs the
-      augmented leapfrog equations (\Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}), % indicating that
+      augmented leapfrog equations (\Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}), % indicating that
       which are parametrized by different neural networks.
       %
       
@@ -170,7 +169,7 @@ encouraging the tunneling of topological properties.
       We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants,
       %\(\beta\),
       and show that our trained models consistently outperform traditional HMC (see
-      \Figref{fig:autocorr_vs_beta}).
+      \Figref{fig:autocorrvsbeta}).
       Models trained on smaller coupling constants, when applied to a larger coupling constant, require
       only minimal retraining.
 %
@@ -179,7 +178,7 @@ is explained by the behavior of the physical system as it passes through the dee
 see \Figref{fig:plaqsf} and \Figref{fig:hwf}.
 %\end{enumerate}
 %
-\section{\label{sec:related_work}Related Work:}
+\section{\label{sec:relatedwork}Related Work:}
 Recently, there has been a growing interest in applying generative machine learning techniques to build smarter, more efficient scientific simulations.
 %
 Following the development of the RealNVP \citep{dinhRealNVP} architecture, there have been many proposed techniques that aim to take advantage of its invertible structure.
@@ -188,7 +187,7 @@ In particular, simulations in lattice gauge theory and lattice QCD stand to bene
 \citep{%
    albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
    neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
-   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively, dinhRealNVP,tanaka2017towards,
+   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,tanaka2017towards,
    rezende2020normalizing%cossu2018testing,
 }.
 
@@ -222,27 +221,28 @@ For simplicity, we consider the forward \(d=+1\) direction, and introduce the no
    v^{\prime}_{k} &\equiv \Gamma^{+}_{k}(v_{k};\zeta_{v_{k}})
    = v_{k}\odot \exp{\left(\tfrac{\varepsilon^{k}_{v}}{2}s_{v}^{k}(\zeta_{v_{k}})\right)} -
    \tfrac{\varepsilon^{k}_{v}}{2}{\left[\partial_{x}S(x_{k})\odot\exp{\left(\varepsilon^{k}_{v} q_{v}^{k}(\zeta_{v_{k}})\right)}
-      +t_{v}^{k}(\zeta_{v_{k}})\right]},\label{eq:new_momentum_update}\\
+      +t_{v}^{k}(\zeta_{v_{k}})\right]},\label{eq:newmomentumupdate}\\
    x^{\prime}_{k} &\equiv \Lambda^{+}(x_{k};\zeta_{x_{k}})
    = x_{k}\odot\exp(\varepsilon^{k}_{x} s^{k}_{x}(\zeta_{x_{k}}))
    + \varepsilon^{k}_{x}\left[v^{\prime}_{k}\odot\exp(\varepsilon^{k}_{x} q^{k}_{x}(\zeta_{x_{k}}))
-         + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:new_position_update}
+         + t^{k}_{x}(\zeta_{x_{k}})\right]\label{eq:newpositionupdate}
 \end{align}
 %
-where: (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\) and \(\zeta_{x_{k}} = (x_{k}, v_{k})\) denote the (\(x\),
+where: (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\) and \(\zeta_{x_{k}} = (\mt\odot x_{k}, v_{k})\),
+\(\zeta_{x_{k}^{\prime}} = (\mbart\odot x_{k}^{\prime}, v_{k}^{\prime})\) denote the (\(x\),
 \(v\) respectively) networks' inputs\footnote{%
- The $v$ network is independent of the variables being updated,
+   The \(v\) network is independent of the variables being updated,
  the $x$ network will be made independent with the mask $m^k$.};
   (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
 \Lambda^{\pm}_{k}\); (3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}-1\}\) denotes the current leapfrog step along the trajectory.
 %
 We include in \Figref{fig:network} an illustration of the network architecture of the $k$-th leapfrog layer
-used for the updates in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.
+used for the updates in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/lflayer.pdf}
-   \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:new_momentum_update} and \Eqref{eq:new_position_update}.}
+   \includegraphics[width=\textwidth]{figures/lflayer3.pdf}
+   \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.}
 \end{figure}
 
 Using this notation, we can write a complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
@@ -289,11 +289,11 @@ where we keep the Jacobian factor for individual degree of freedom tractable.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\label{sec:lattice_gauge_theory}\(U(1)\) Lattice Gauge Theory}
+\section{\label{sec:latticegaugetheory}\(U(1)\) Lattice Gauge Theory}
 %
-\begin{wrapfigure}{r}{0.2\textwidth}
+\begin{wrapfigure}{r}{.25\textwidth}
       \centering
-      \includegraphics[width=0.2\textwidth]{figures/plaq_tikz.pdf}
+      \includegraphics[width=0.25\textwidth]{figures/plaq_tikz.pdf}
       \caption{\label{fig:plaquette}Plaquette}%, \(P\)}
 \end{wrapfigure}
 Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics (QCD).
@@ -333,7 +333,8 @@ when simulation approaches the continuum limit.
 %
 For this reason, we wish to construct a loss function that encourages our sampler to explore different topological sectors.
 %
-In order to do so, we introduce a continuous version of the topological charge, \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\), by replacing the projection in \Eqref{eq:intcharge} to give:
+In order to do so, we introduce a continuous version of the topological charge,
+\(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\), by replacing the projection in \Eqref{eq:intcharge} to give:
 %
 \begin{equation}
     \mathcal{Q}_{\mathbb{R}} \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}).
@@ -385,7 +386,7 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
    \centering
       \centering
       \includegraphics[width=0.4\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
-      \caption{\label{fig:autocorr_vs_beta}Estimate of the integrated autocorrelation time
+      \caption{\label{fig:autocorrvsbeta}Estimate of the integrated autocorrelation time
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
    simulation cost.} %different trajectory lengths.}
          % for HMC (black dashed line), trained model (solid blue line).}
@@ -393,11 +394,11 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
 To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
 In order to more accurately capture the computational effort between the two approaches we scale our estimate of the integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).
-We can see in \Figref{fig:autocorr_vs_beta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots, 7\).
+We can see in \Figref{fig:autocorrvsbeta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots, 7\).
 %
 To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of \(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
 %
-We see in \Figref{fig:topological_freezing} that HMC remains stuck at a particular value of \(\mathcal{Q}_{\mathbb{Z}}\) for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
+We see in \Figref{fig:topfreeze} that HMC remains stuck at a particular value of \(\mathcal{Q}_{\mathbb{Z}}\) for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
 %
 In order to better understand the mechanism driving this improved behavior, we evaluate different quantities
 of the system during its passing through
@@ -418,39 +419,41 @@ As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibit
 %
 %
 %
+%
 \begin{figure}[htpb]
    \centering
-   %
-   \begin{subfigure}{\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
-      \caption{\label{fig:topological_freezing}Topological charge \(\mathcal{Q}_{\mathbb{Z}}\) vs MC
-      step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
-   \end{subfigure}
-   %
-   \hfill
-   %
-   \begin{subfigure}{0.32\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/plaqsf_1758.pdf}
+   \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
+   \caption{\label{fig:topfreeze}Topological charge \(\mathcal{Q}_{\mathbb{Z}}\) vs MC
+   step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
+\end{figure}
+%
+\begin{figure}[htpb]
+   \centering
+   \begin{subfigure}[h]{0.31\textwidth}
+      % \centering
+      % \includegraphics[width=0.8\textwidth]{figures/plaqsf_1758.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/plaqsf_1552.pdf}
       \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at intermediate leapfrog layers.}
    \end{subfigure}
-   %
    \hfill
-   \begin{subfigure}{0.32\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/extras/hwf.pdf}
+   %
+   \begin{subfigure}[h]{0.31\textwidth}
+      % \centering
+      % \includegraphics[width=0.8\textwidth]{figures/extras/hwf.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/hwf_1548.pdf}
       \caption{\label{fig:hwf}The readjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\), of the model at intermediate leapfrog layers.}
    \end{subfigure}
    \hfill
-   \begin{subfigure}{0.32\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/sinQf_1755.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate leapfrog layers.}%
+   \begin{subfigure}[h]{0.31\textwidth}
+      % \centering
+      % \includegraphics[width=0.8\textwidth]{figures/sinQf_1755.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/sinQf_1544.pdf}
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate
+      leapfrog layers.}%
    \end{subfigure}
+   \caption{Plots showing how various quantities of interest are transformed at intermediate leapfrog layers.}
 \end{figure}
 %
-
 \section{Discussion and Further Research}
 We propose DLHMC as an efficient algorithm for MCMC, and observed a dramatic improvement
 in simulating 2D $U(1)$ gauge theory.
@@ -470,10 +473,16 @@ This work describes objective technical results and analysis.
 Any subjective views or opinions that might be expressed in the work do not necessarily represent the views of the U.S.
 DOE or the United States Government.
 %
+Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its
+many data science libraries
+\citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251,arviz_2019}
 
-Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its many data science libraries \citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251}
+% Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its
+% many data science libraries
+% \citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251,arviz_2019}
+%
 
-\bibliography{iclr2021_conference}
+\bibliography{iclr2021_conference.bib}
 \bibliographystyle{iclr2021_conference}
 
 \appendix
@@ -546,7 +555,7 @@ during the training phase (\(N\) training steps) \({\{\gamma_{t}\}}_{t=0}^{N} = 
 \gamma_{N-1}, \gamma_{N}\}\), where \(\gamma_{0} < \gamma_{1} < \cdots < \gamma_{N} \equiv 1\), \(\gamma_{t+1} -
 \gamma_{t} \ll 1\).
 %
-Note that we are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
+We are free to vary \(\gamma\) during the initial training phase as long as we recover the true distribution
 with \(\gamma \equiv 1\) at the end of training and evaluate our trained model without this factor.
 %
 Explicitly, for \(\gamma_{t} < 1\) this rescaling factor helps to reduce the height of the energy barriers, making it
@@ -560,7 +569,6 @@ our progress through the training phase, which can be written explicitly as
    \label{eq:targetannealing}
 \end{equation}
 %
-\clearpage
 \section{\label{sec:algorithm}Training Algorithm}
 %
 \begin{algorithm}[htpb]%
@@ -575,7 +583,7 @@ our progress through the training phase, which can be written explicitly as
    \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
    \DontPrintSemicolon%
-   \caption{\label{alg:training_algorithm}Training procedure}%
+   \caption{\label{alg:training}Training procedure}%
    \Input{%
          %(1.) \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
          %(2.) \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
