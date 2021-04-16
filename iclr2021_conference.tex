@@ -24,9 +24,9 @@
 \usepackage{microtype}
 \usepackage[normalem]{ulem}
 \usepackage[ruled, vlined,inoutnumbered,rightnl]{algorithm2e}
-\SetAlFnt{\footnotesize}
-\SetAlCapFnt{\footnotesize}
-\SetAlCapNameFnt{\footnotesize}
+\SetAlFnt{\normalsize}
+\SetAlCapFnt{\normalsize}
+\SetAlCapNameFnt{\normalize}
 
 \usepackage[pdfauthor={Sam Foreman},%
    pdftitle={Deep Learning Hamiltonian Monte Carlo},%
@@ -430,29 +430,30 @@ As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibit
 %
 \begin{figure}[htpb]
    \centering
-   \begin{subfigure}[h]{0.31\textwidth}
+   \begin{subfigure}{0.329\textwidth}
       % \centering
       % \includegraphics[width=0.8\textwidth]{figures/plaqsf_1758.pdf}
       \includegraphics[width=\textwidth]{figures/ridgeplots/plaqsf_1552.pdf}
-      \caption{\label{fig:plaqsf}Change in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at intermediate leapfrog layers.}
+      \caption{\label{fig:plaqsf}Difference in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at each leapfrog layer.}
    \end{subfigure}
    \hfill
    %
-   \begin{subfigure}[h]{0.31\textwidth}
+   \begin{subfigure}{0.321\textwidth}
       % \centering
       % \includegraphics[width=0.8\textwidth]{figures/extras/hwf.pdf}
       \includegraphics[width=\textwidth]{figures/ridgeplots/hwf_1548.pdf}
-      \caption{\label{fig:hwf}The readjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\), of the model at intermediate leapfrog layers.}
+      \caption{\label{fig:hwf}The adjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\) at each leapfrog layer.}
    \end{subfigure}
    \hfill
-   \begin{subfigure}[h]{0.31\textwidth}
+   \begin{subfigure}{0.321\textwidth}
       % \centering
       % \includegraphics[width=0.8\textwidth]{figures/sinQf_1755.pdf}
       \includegraphics[width=\textwidth]{figures/ridgeplots/sinQf_1544.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at intermediate
-      leapfrog layers.}%
+      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at each
+      leapfrog layer.}%
    \end{subfigure}
-   \caption{Plots showing how various quantities of interest are transformed at intermediate leapfrog layers.}
+   \caption{Plots showing how various quantities of interest are transformed as they're passed through each of the
+   leapfrog layers in the generalized leapfrog update.}
 \end{figure}
 %
 \section{Discussion and Further Research}
