@@ -223,7 +223,7 @@ denoting the ``direction'' (forward/backward) of our update.
 DLHMC algorithm further generalize the leapfrog steps in L2HMC using individual neural networks.
 Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for the $k$-th layer,
 to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward leapfrog layer.
-Subsequently the $k+1$-th layer uses $\xi_{k+1}=(x''_k,v''_k,d_k)$ is its input.
+Subsequently the $k+1$-th layer uses $\xi_{k+1}=(x''_k,v''_k,d_k)$ a its input.
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
 %
 \begin{align}
