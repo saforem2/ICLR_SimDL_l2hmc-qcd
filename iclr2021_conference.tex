@@ -44,11 +44,19 @@
 
 \newcommand{\JCO}[1]{\textcolor{red}{[#1]}}
 
+\definecolor{caribbeangreen}{rgb}{0.0, 0.8, 0.6}
+\definecolor{pinkred}{HTML}{FA5477}
+\definecolor{newblue}{HTML}{448AFF}
+\definecolor{newdarkblue}{HTML}{0282CA}
+\definecolor{newpurple}{HTML}{CC4FFF}
+\definecolor{newgreen}{HTML}{51C569}
+\definecolor{newlightblue}{HTML}{71C8A7}
+%{448AFF}
 \hypersetup{
   colorlinks=true,
-  urlcolor=green,
-  linkcolor=magenta,
-  citecolor=cyan,
+  urlcolor=newpurple,
+  linkcolor=pinkred,
+  citecolor=newblue,
 }
 
 % \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
@@ -60,8 +68,8 @@
 \definecolor{blue1}{HTML}{448aff}
 \definecolor{pink1}{HTML}{FA5477}
 
-\newcommand{\mbart}{\textcolor{red}{\bar{m}^{k}}}
-\newcommand{\mt}{\textcolor{blue}{m^{k}}}
+\newcommand{\mbart}{\textcolor{pinkred}{\bar{m}^{k}}}
+\newcommand{\mt}{\textcolor{newblue}{m^{k}}}
 
 
 
@@ -70,7 +78,7 @@
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
 % Non-anonymous submissions will be rejected without review.
-\author{Sam Foreman, Xiao-Yong Jin \& James Osborn
+\author{Sam Foreman, Xiao-Yong Jin \& James C. Osborn
 \thanks{
    \texttt{\href{mailto:foremans@anl.gov}{foremans@anl.gov}},
    \texttt{\href{mailto:xjin@anl.gov}{xjin@anl.gov}},
@@ -383,14 +391,13 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
 %During inference, we record the values of quantities of interest and compare them to the results obtained from running inference using generic HMC.
 %
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}{r}{0.425\textwidth}
    \centering
       \centering
-      \includegraphics[width=0.4\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
+      \includegraphics[width=0.425\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
       \caption{\label{fig:autocorrvsbeta}Estimate of the integrated autocorrelation time
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
-   simulation cost.} %different trajectory lengths.}
-         % for HMC (black dashed line), trained model (solid blue line).}
+   simulation cost.}
 \end{wrapfigure}
 To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
@@ -431,17 +438,17 @@ As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibit
 \begin{figure}[hbpt]
    % \centering
    \begin{subfigure}[b]{0.33\textwidth}
-      \includegraphics[width=\textwidth]{figures/ridgeplots/plaqsf_1552.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/plaqsf.pdf}
       \caption{\label{fig:plaqsf}Difference in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at each leapfrog layer.}
    \end{subfigure}
    \hfill
    \begin{subfigure}[b]{0.315\textwidth}
-      \includegraphics[width=\textwidth]{figures/ridgeplots/hwf_1548.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/hwf.pdf}
       \caption{\label{fig:hwf}The adjusted energy, \(\mathcal{H}-\sum\log|\mathcal{J}|\) at each leapfrog layer.}
    \end{subfigure}
    \hfill
    \begin{subfigure}[b]{0.315\textwidth}
-      \includegraphics[width=\textwidth]{figures/ridgeplots/sinQf_1544.pdf}
+      \includegraphics[width=\textwidth]{figures/ridgeplots/sinQf.pdf}
       \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at each
       leapfrog layer.}%
    \end{subfigure}
@@ -571,11 +578,11 @@ our progress through the training phase, which can be written explicitly as
    \SetAlgoVlined%
    \SetKwProg{Fn}{def}{\string:}{}%
    \SetKwFunction{Range}{range}%
-   \SetKwFor{For}{\color{blue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
+   \SetKwFor{For}{\color{newblue}\textbf{\texttt{for}}}{\string:}{}\color{black}%
    \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
    \SetKwFor{While}{while}{:}{fintq}%
-   \SetKwInOut{Input}{\color{red}{\textbf{\texttt{input}}}\color{black}}%
-   \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
+   \SetKwInOut{Input}{\color{pinkred}{\textbf{\texttt{input}}}\color{black}}%
+   % \SetKwInOut{Output}{\color{red}{\textbf{\texttt{output}}}\color{black}}%
    \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd%
    \DontPrintSemicolon%
    \caption{\label{alg:training}Training procedure}%
