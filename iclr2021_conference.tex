@@ -134,8 +134,9 @@ consecutive leapfrog steps.
 %
 Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for
 $N_{\mathrm{LF}}$ leapfrog layers, performs the augmented leapfrog equations (\Eqref{eq:newmomentumupdate} and
-\Eqref{eq:newpositionupdate}), % indicating that which are parametrized by different neural networks.
+\Eqref{eq:newpositionupdate}), which are parametrized by different neural networks.
 %
+
 We apply the proposed method to a \(2\)-dimensional \(U(1)\) lattice gauge theory defined on a square lattice with
 periodic boundary conditions.
 %
@@ -435,7 +436,7 @@ deep neural network.
    \centering
    \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
    \caption{\label{fig:topfreeze}Topological charge \(\mathcal{Q}_{\mathbb{Z}}\) vs MC
-   step for both HMC (black line) and the trained model (blue line).}
+   step for both HMC (black) and the trained model (blue).}
 \end{figure}
 %
 \begin{figure}[hbpt]
@@ -517,7 +518,7 @@ numerically integrated using the leapfrog integrator along iso-probability conto
 Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
 proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
 %
-\subsection{\label{subsec:leapfroghmc}Leapfrog Update}
+% \subsection{\label{subsec:leapfroghmc}Leapfrog Update}
 %
 \begin{enumerate}
    \item Half-step momentum update: \hspace{12pt}\(%
