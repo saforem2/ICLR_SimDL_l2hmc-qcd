@@ -100,12 +100,10 @@
 
 \maketitle
 \begin{abstract}
-   %We propose a generalized version of the L2HMC algorithm~\citep{levy2017},
    We generalize the Hamiltonian Monte Carlo algorithm with a stack of neural network layers,
    and evaluate its ability to sample from
    different topologies in a two-dimensional lattice gauge theory.
    %
-   %In particular, 
    We demonstrate that our model is able to successfully mix between modes of different topologies,
    significantly reducing the computational cost required to generate independent gauge field configurations.
    %
@@ -120,7 +118,6 @@ its ability to outperform traditional Hamiltonian Monte Carlo (HMC) on a variety
 target
 distributions.
 %
-%In particular, 
 They show that the trained L2HMC sampler is capable of mixing between modes by exploring regions of phase space which are %typically
 inaccessible with traditional HMC.\@
 %
@@ -130,100 +127,104 @@ which is made exact with the help of Metropolis-Hastings \citep{zbMATH03349185} 
 We target our Deep Learning Hamiltonian Monte Carlo (DLHMC) algorithm to simulating lattice gauge theories,
 where state-of-the-art simulations have billions of degrees of freedom and run on supercomputers with thousands of nodes,
 yet suffer an exponential slowdown when approaching continuum physics \citep{schaefer2009investigating,cossu2018testing}.
-%The ability to mix between isolated modes of a multi-modal target distribution is highly desirable for MCMC simulations of lattice gauge theory, which are known to become prohibitively expensive as we increase the resolution of our simulations \cite{kschaefer2009investigating,cossu2018testing}.
 
 \section{\label{sec:maincontributions}Main Contributions}
-%\begin{enumerate}
-%   \item
-We propose the DLHMC algorithm as a generalized HMC algorithm,
-      using a stack of distinct neural network layers replacing consecutive leapfrog steps.
-      %that uses different networks (with different step
-      %sizes) for each distinct leapfrog step.
-      %
-      Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for $N_{\mathrm{LF}}$
-      leapfrog layers, performs the
-      augmented leapfrog equations (\Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}), % indicating that
-      which are parametrized by different neural networks.
-      %
-      
-%   \item
-%We propose a modified loss function specifically designed for our physical system,
-%encouraging the tunneling of topological properties.
-      %
-%      \begin{equation}
-%          \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
-%              \left[ \, -\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)\,\right],\quad\text{with}\quad%
-%          \delta(\xi^{\prime}, \xi) \equiv
-%      {\left(\mathcal{Q}_{\mathbb{R}}^{\prime}-\mathcal{Q}_{\mathbb{R}}\right)}^{2}
-%          }
-%      \end{equation}
-      %
-%      where \(\mathcal{Q}_{\mathbb{R}}\in\mathbb{R}\) is the real-valued topological charge, defined in \Secref{sec:lattice_gauge_theory}.
-      %
-%     We evaluate this loss at the end of each trajectory during training, and use the gradient information to update
-%      the weights \(\theta\) parameterizing the auxiliary functions \(s^{k}_{i}, t^{k}_{i}, q^{k}_{i}\), (\(i \in\{x, v\}\), \(k \in \{0, 1, \ldots, N_{\mathrm{LF}}\}\))
-%      introduced in the augmented leapfrog updates in \Secref{sec:method}.
-      %
-   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   
-%   \item
-We apply the proposed method to a \(2\)-dimensional \(U(1)\) lattice gauge theory defined on a
-      square lattice with periodic boundary conditions.
-We specifically designed a loss function for our physical system,
-encouraging the tunneling of topological properties.
-      We see a significant reduction in the
-      computational cost using DLHMC, as measured by the integrated autocorrelation time of the topological charge.
-      %\(\tau_{\mathrm{int}}^{\mathcal{Q}}\).
-      %
-      We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants,
-      %\(\beta\),
-      and show that our trained models consistently outperform traditional HMC (see
-      \Figref{fig:autocorrvsbeta}).
-      Models trained on smaller coupling constants, when applied to a larger coupling constant, require
-      only minimal retraining.
+We propose the DLHMC algorithm as a generalized HMC algorithm, using a stack of distinct neural network layers replacing
+consecutive leapfrog steps.
+%
+Each distinct neural network layer, carrying a discrete index \(k = 0, 1, \ldots, N_{\mathrm{LF}}-1\) for
+$N_{\mathrm{LF}}$ leapfrog layers, performs the augmented leapfrog equations (\Eqref{eq:newmomentumupdate} and
+\Eqref{eq:newpositionupdate}), % indicating that which are parametrized by different neural networks.
+%
+We apply the proposed method to a \(2\)-dimensional \(U(1)\) lattice gauge theory defined on a square lattice with
+periodic boundary conditions.
+%
+We specifically designed a loss function for our physical system, encouraging the tunneling of topological properties.
+%
+We see a significant reduction in the computational cost using DLHMC, as measured by the integrated autocorrelation time
+of the topological charge.
+%
+We compare our results to traditional HMC across a variety of trajectory lengths and coupling constants, and show that
+our trained models consistently outperform traditional HMC (see \Figref{fig:autocorrvsbeta}).
+%
+Models trained on smaller coupling constants, when applied to a larger coupling constant, require only minimal
+retraining.
 %
 We find that the efficiency in tunneling topological sectors of our trained DLHMC sampler
 is explained by the behavior of the physical system as it passes through the deep neural network,
 see \Figref{fig:plaqsf} and \Figref{fig:hwf}.
-%\end{enumerate}
 %
 \section{\label{sec:relatedwork}Related Work:}
-Recently, there has been a growing interest in applying generative machine learning techniques to build smarter, more efficient scientific simulations.
+Recently, there has been a growing interest in applying generative machine learning techniques to build smarter, more
+efficient scientific simulations.
 %
-Following the development of the RealNVP \citep{dinhRealNVP} architecture, there have been many proposed techniques that aim to take advantage of its invertible structure.
+Following the development of the RealNVP \citep{dinhRealNVP} architecture, there have been many proposed techniques that
+aim to take advantage of its invertible structure.
 %
-In particular, simulations in lattice gauge theory and lattice QCD stand to benefit tremendously from this new approach, as evidenced by the rapidly-growing body of work in this direction 
-\citep{%
-   albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
-   neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2019hamiltonian,
-   hoffman2019neutra,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,tanaka2017towards,
-   rezende2020normalizing%cossu2018testing,
-}.
+In particular, simulations in lattice gauge theory and lattice QCD stand to benefit tremendously from this new approach,
+as evidenced by the rapidly-growing body of work in this direction ranging from network architectures
+\citep{dinhRealNVP,favoni2020lattice,toth2020hamiltonian}, %
+generative models
+\citep{albergo2019flow,albergo2021introduction,medvidovic2020generative,boyda2020sampling,kanwar2020equivariant,wehenkel2020you},
+and novel MCMC approaches
+\citep{hoffman2019neutra,pasarica2010adaptively,neklyudov2020orbital,neklyudov2020involutive,li2020neural,tanaka2017towards,rezende2020normalizing}
 
+% \citep{%
+%    albergo2019flow,albergo2021introduction,favoni2020lattice,medvidovic2020generative,neklyudov2020orbital,
+%    neklyudov2020involutive, li2020neural,boyda2020sampling,kanwar2020equivariant,toth2020hamiltonian,
+%    hoffman2019neutra,wehenkel2020you,pasarica2010adaptively,dinhRealNVP,tanaka2017towards,
+%    rezende2020normalizing%cossu2018testing,
+% }.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Networks:
+% ----------
+%  dinhRealNVP: Real NVP
+%  favoni2020lattice: "Lattice Gauge Equivariant Convolutional Neural Networks"
+%  toth2020hamiltonian: "Hamiltonian Generative Networks"
+%
+% Generative models:
+% ------------------
+%  albergo2019flow: "Flow-based generative models for MCMC in Lattice FIeld Theory
+%  albergo2021introduction: "Introduction to Normalizing Flows for Lattice Field Theory"
+%  medvidovic2020generative: "Generative Models for Sampling of Lattice Field Theories"
+%  boyda2020sampling: "Sampling using SU(n) Gauge Equivariant Flows"
+%  kanwar2020equivariant: "Equivariant Flow-Based Sampling for Lattice Gauge Theory"
+%  wehenkel2020you: "You Say Normalizing FLows I See Bayesian Networks"
+%
+% MCMC Approaches:
+% -----------------
+%  hoffman2019neutra: "NeuTra-lizing Bad Geometry in HMC Using Neural Transport"
+%  pasarica2010adaptively: "Adaptively Scaling the Metropolois Algorithm Using Expected Squared Jumped Distance"
+%  neklyudov2020orbital: Orbital MCMC
+%  neklyudov2020involutive: Involutive MCMC
+%  li2020neural: "A Neural Network MCMC Sampler that Maximizes Proposal Entropy
+%  tanaka2017towards: "Towards reduction of autocorrelation in HMC by machine learning"
+%  rezende2020normalizing: "Normalizing Flows on Tori and Spheres"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:method}DLHMC Algorithm}
 %
 We provide a review of the generic Hamiltonian Monte Carlo (HMC) algorithm and set up some of the relevant notation in
 \Secref{subsec:HMC}.
 %
-For simulating a system, $x$, using a theoretically given probability density $p(x)$ with likely intractable normalization,
-we augment the Markov chain state as
-\(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) = p(x) p(v) p(d)\).
+For simulating a system, $x$, using a theoretically given probability density $p(x)$ with likely intractable
+normalization, we augment the Markov chain state as \(\xi = (x, v, d)\) with target distribution \(p(\xi) = p(x, v, d) =
+p(x) p(v) p(d)\).
+%
 The conjugate momentum $v$ typically used in HMC algorithms has a known and easy to sample distribution.
 %
-The binary direction variable, as introduced in L2HMC~\citep{levy2017},
-\(d\in\mathcal{U}(+,-)\), %which is resampled following each Metropolis-Hastings accept/reject step, and can be
-%interpreted as determining
-denoting the ``direction'' (forward/backward) of our update.
-%
-%The key modification of the L2HMC algorithm is the introduction of six auxiliary functions \(s_{i}, t_{i}, q_{i}\) for \(i
-%\in \{x, v\}\) into the leapfrog updates (\Secref{subsec:leapfroghmc}), which are parameterized by weights \(\theta\) in a neural network.
+The binary direction variable, as introduced in L2HMC~\citep{levy2017}, \(d\in\mathcal{U}(+,-)\), denoting the
+``direction'' (forward/backward) of our update.
 %
 
 DLHMC algorithm further generalize the leapfrog steps in L2HMC using individual neural networks.
-Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for the $k$-th layer,
-to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward leapfrog layer.
+%
+Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for
+the $k$-th layer, to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward
+leapfrog layer.
+%
 Subsequently the $k+1$-th layer uses $\xi_{k+1}=(x''_k,v''_k,d_k)$ as its input.
+%
 For simplicity, we consider the forward \(d=+1\) direction, and introduce the notation:
 %
 \begin{align}
@@ -241,18 +242,22 @@ where: (1.) \(\zeta_{v_{k}} = (x_{k}, \partial_{x}S(x_{k}))\) and \(\zeta_{x_{k}
 \(\zeta_{x_{k}^{\prime}} = (\mbart\odot x_{k}^{\prime}, v_{k}^{\prime})\) denote the (\(x\),
 \(v\) respectively) networks' inputs\footnote{%
    The \(v\) network is independent of the variables being updated,
- the $x$ network will be made independent with the mask $m^k$.};
-  (2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k},
-\Lambda^{\pm}_{k}\); (3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}-1\}\) denotes the current leapfrog step along the trajectory.
+   the $x$ network will be made independent with the mask $m^k$.
+}; %
 %
-We include in \Figref{fig:network} an illustration of the network architecture of the $k$-th leapfrog layer
-used for the updates in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.
+(2.) we indicate the direction of the update by the superscript \(\pm\) on \(\Gamma^{\pm}_{k}, \Lambda^{\pm}_{k}\); %
+%
+(3.) \(k\in\{0,1,\ldots,N_{\mathrm{LF}}-1\}\) denotes the current leapfrog step along the trajectory.
+%
+We include in \Figref{fig:network} an illustration of the network architecture of the $k$-th leapfrog layer used for the
+updates in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.
 %
 \begin{figure}[htpb]
    \centering
    \includegraphics[width=\textwidth]{figures/lflayer.pdf}
    % \includegraphics[width=\textwidth]{figures/lflayer3.pdf}
-   \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.}
+   \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:newmomentumupdate} and
+   \Eqref{eq:newpositionupdate}.}
 \end{figure}
 
 Using this notation, we can write a complete leapfrog update (in the forward \(d=+1\) direction)\footnote{%
@@ -283,13 +288,15 @@ Using this notation, we can write a complete leapfrog update (in the forward \(d
    \)
 \end{enumerate}
 %
-Collectively, we refer to this series of updates as a single \emph{leapfrog layer}, which performs a single update \(\xi\rightarrow\xi^{\prime}\).
+Collectively, we refer to this series of updates as a single \emph{leapfrog layer}, which performs a single update
+\(\xi\rightarrow\xi^{\prime}\).
 %
-Note that in order to keep our update reversible, we've split the \(x\) update into two sub-updates by
-introducing a binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially.
+Note that in order to keep our update reversible, we've split the \(x\) update into two sub-updates by introducing a
+binary mask \(\mbart = \mathbbm{1} - \mt\) that updates half of the components of \(x\) sequentially.
 %
 
-As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
+As in HMC, we form a complete trajectory by performing \(N_{\mathrm{LF}}\) leapfrog steps in sequence, followed by a
+Metropolis-Hastings accept/reject step as described in \Eqref{eq:mhcriteria}.
 %
 However, unlike in the expression for HMC, we must take into account the overall Jacobian factor from the update
 \(\xi\rightarrow\xi^{\prime}\), which can be easily computed as \(\left|\tfrac{\partial v^{\prime\prime}_{k}}{\partial
@@ -298,7 +305,6 @@ However, unlike in the expression for HMC, we must take into account the overall
 where we keep the Jacobian factor for individual degree of freedom tractable.
 %
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\label{sec:latticegaugetheory}\(U(1)\) Lattice Gauge Theory}
 %
 \begin{wrapfigure}{r}{.25\textwidth}
@@ -306,12 +312,16 @@ where we keep the Jacobian factor for individual degree of freedom tractable.
       \includegraphics[width=0.25\textwidth]{figures/plaq_tikz.pdf}
       \caption{\label{fig:plaquette}Plaquette}%, \(P\)}
 \end{wrapfigure}
-Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED) and Quantum Chromodynamics (QCD).
-It is the predominant method that can be computed numerically, and widely used for simulating subatomic particles and nuclei.
+Lattice gauge theory is one formulation of quantum field theories with gauge fields, eg. Quantum Electrodynamics (QED)
+and Quantum Chromodynamics (QCD).
+%
+It is the predominant method that can be computed numerically, and widely used for simulating subatomic particles and
+nuclei.
+%
 Here we describe the \(U(1)\) gauge (QED), and apply our DLHMC in 2 dimensional systems.
-Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link
-variables}, where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site
-\(n\).
+%
+Let \(U_{\mu}(n) = e^{i x_{\mu}(n)} \in U(1)\), with \(x_{\mu}(n) \in [-\pi,\pi]\) denote the \emph{link variables},
+where \(x_{\mu}(n)\) is the link oriented in the \(\hat{\mu}\)-direction located at the site \(n\).
 %
 We can write our target distribution in terms of the Wilson action \(S_{\beta}(x)\) as
 %
@@ -326,7 +336,8 @@ where $Z$ is the intractable normalization;
 variables around the \(1\times1\) elementary plaquette, shown in \Figref{fig:plaquette}; and the sum is over all
 such plaquettes on the lattice.
 %
-Here, \(\beta = 2 / g_{0}^{2}\) is a coupling constant and \(\beta\rightarrow\infty\) recovers the continuum limit of the theory. 
+Here, \(\beta = 2 / g_{0}^{2}\) is a coupling constant and \(\beta\rightarrow\infty\) recovers the continuum limit of
+the theory. 
 %
 
 Physically, each lattice configuration has its topological charge, \(\mathcal{Q}_{\mathbb{Z}}\in\mathbb{Z}\), defined as
@@ -338,8 +349,8 @@ Physically, each lattice configuration has its topological charge, \(\mathcal{Q}
    \label{eq:intcharge}
 \end{equation}
 %
-Current methods are severely limited in their ability to mix between different topologies, a phenomenon known as topological freezing,
-when simulation approaches the continuum limit.
+Current methods are severely limited in their ability to mix between different topologies, a phenomenon known as
+topological freezing, when simulation approaches the continuum limit.
 %
 For this reason, we wish to construct a loss function that encourages our sampler to explore different topological sectors.
 %
@@ -350,9 +361,9 @@ In order to do so, we introduce a continuous version of the topological charge,
     \mathcal{Q}_{\mathbb{R}} \equiv \frac{1}{2\pi}\sum_{P}\sin(x_{P}).
     \label{eq:sincharge}
 \end{equation}
-% [it's always real value]
-%This quantity has the advantage of being real-valued to help prevent numerical instability during training.
-This quantity has the advantage of being continuously differentiable, which is important for training the deep neural network.
+%
+This quantity has the advantage of being continuously differentiable, which is important for training the deep neural
+network.
 %
 Our loss function is then defined as
 %
@@ -362,34 +373,24 @@ Our loss function is then defined as
    }
 \end{equation}
 %
-where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) - \mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
+where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) -
+\mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
 %
 %
-
 \section{\label{sec:results}Results}
 %
 We apply our DLHMC algorithm with
 the training procedure in \Secref{sec:algorithm} and the annealing schedule from \Secref{sec:annealing}
 to the 2D $U(1)$ gauge theory with parameters gradually approaching the continuum limit.
-%We are able to train our sampler for some fixed number of training steps and then run inference on the trained model.
+%
 We then run inference to generate the Markov chain using the trained model and compare its efficiency with HMC.\@
 %
-%For this experiment, we used a batch size of $M=2048$, [PLEASE MORE DEEP LEARNING PARAMETERS]
-%We trained our models using the supercomputer ThetaGPU at Argonne Leadership Facility.  We used [ NODE-HOURS A100 TENSORFLOW HOROVOD].
+We trained our models using Horovod \citep{horovod2018sergeev} with TensorFlow \citep{tensorflow2015-whitepaper} on the
+ThetaGPU supercomputer at the Argonne Leadership Computing Facility.
 %
-We trained our models using Horovod \citep{horovod2018sergeev} with TensorFlow \citep{tensorflow2015-whitepaper} on the ThetaGPU supercomputer at the Argonne Leadership Computing Facility.
-%
-%supercomputer ThetaGPU at Argonne Leadership Computing Facility using Horovod + TensorFlow for data-parallel training.
-%
-A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch size \(M=2048\), hidden layer shapes \(=\left[256, 256, 256\right]\) for each of the \(N_{\mathrm{LF}}=10\) leapfrog layers, on a \(16\times16\) lattice, for \(5\times10^{5}\) training steps takes roughly \(24\) hours to complete.
-%
-%During training we maintain a buffer of \(M=2048\) chains which are updated in parallel.
-%
-
-%We evaluate the loss function and update our weights accordingly at the end of each trajectory prior to performing the Metropolis-Hastings accept/reject step.
-%
-
-%During inference, we record the values of quantities of interest and compare them to the results obtained from running inference using generic HMC.
+A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch size \(M=2048\), hidden layer shapes
+\(=\left[256, 256, 256\right]\) for each of the \(N_{\mathrm{LF}}=10\) leapfrog layers, on a \(16\times16\) lattice, for
+\(5\times10^{5}\) training steps takes roughly \(24\) hours to complete.
 %
 
 \begin{wrapfigure}{r}{0.425\textwidth}
@@ -400,47 +401,49 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
    simulation cost.}
 \end{wrapfigure}
-To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
+To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which
+can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
-In order to more accurately capture the computational effort between the two approaches we scale our estimate of the integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).
-We can see in \Figref{fig:autocorrvsbeta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots, 7\).
+In order to more accurately capture the computational effort between the two approaches we scale our estimate of the
+integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).  We can see in
+\Figref{fig:autocorrvsbeta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots,
+7\).
 %
-To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of \(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
+To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of
+\(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
 %
-We see in \Figref{fig:topfreeze} that HMC remains stuck at a particular value of \(\mathcal{Q}_{\mathbb{Z}}\) for large sections of the simulation, whereas the trained sampler rapidly jumps between values.
+We see in \Figref{fig:topfreeze} that HMC remains stuck at a particular value of \(\mathcal{Q}_{\mathbb{Z}}\) for large
+sections of the simulation, whereas the trained sampler rapidly jumps between values.
 %
-In order to better understand the mechanism driving this improved behavior, we evaluate different quantities
-of the system during its passing through
-the $N_{\mathrm{LF}}$ leapfrog layers.% \(k=0, 1, \ldots, N_{\mathrm{LF}}\) during the trajectory.
+In order to better understand the mechanism driving this improved behavior, we evaluate different quantities of the
+system during its passing through the $N_{\mathrm{LF}}$ leapfrog layers.
 %
-\Figref{fig:plaqsf} and \Figref{fig:hwf} show the distribution over batches of the average plaquette value and the modified energy of the
-Markov state, during the transformation via $N_{\mathrm{LF}}=10$ leapfrog layers.
-Our sampler artificially increased the energy density of the physical system during the first half of the trajectory before returning back to its original physical value.
-This is not a prescribed behavior, but self-learned during the training.
+\Figref{fig:plaqsf} and \Figref{fig:hwf} show the distribution over batches of the average plaquette value and the
+modified energy of the Markov state, during the transformation via $N_{\mathrm{LF}}=10$ leapfrog layers.
 %
-We believe that this ability to vary the energy during the trajectory helps the sampler to overcome energy barriers between topological sectors whereas HMC remains stuck.
-As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibits mixing behavior at the middle of the deep neural network.
+Our sampler artificially increased the energy density of the physical system during the first half of the trajectory
+before returning back to its original physical value.  This is not a prescribed behavior, but self-learned during the
+training.
 %
-%By introducing the scaling \(N_{\mathrm{LF}} \tau_{\mathrm{int}}\) we more accurately capture the computational effort per step when comparing the two approaches.
+We believe that this ability to vary the energy during the trajectory helps the sampler to overcome energy barriers
+between topological sectors whereas HMC remains stuck.
 %
-
-%If we think of the average plaquette as being an energy density, we can see in \Figref{fig:plaqsf}, \Figref{fig:hwf} that our sampler experiences a gradual increase in energy during the first half of the trajectory before decreasing back to its original value at the end.
-%
-%
-%
+As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibits mixing behavior at the middle of the
+deep neural network.
 %
 \begin{figure}[htpb]
    \centering
    \includegraphics[width=\textwidth]{figures/topological_freezing_anl_blue_wide.pdf}
    \caption{\label{fig:topfreeze}Topological charge \(\mathcal{Q}_{\mathbb{Z}}\) vs MC
-   step for both HMC (black line) and the trained model (blue line).}% for HMC (black line), and trained model (blue line)}
+   step for both HMC (black line) and the trained model (blue line).}
 \end{figure}
 %
 \begin{figure}[hbpt]
    % \centering
    \begin{subfigure}[b]{0.33\textwidth}
       \includegraphics[width=\textwidth]{figures/ridgeplots/plaqsf.pdf}
-      \caption{\label{fig:plaqsf}Difference in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at each leapfrog layer.}
+      \caption{\label{fig:plaqsf}Difference in the average plaquette, \(\langle x_{P}-x_{P}^{*}\rangle\) at each
+      leapfrog layer.}
    \end{subfigure}
    \hfill
    \begin{subfigure}[b]{0.315\textwidth}
@@ -458,18 +461,21 @@ As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibit
 \end{figure}
 %
 \section{Discussion and Further Research}
-We propose DLHMC as an efficient algorithm for MCMC, and observed a dramatic improvement
-in simulating 2D $U(1)$ gauge theory.
-Being able to efficiently tunnel topological sectors is a significant first step toward efficient
-simulating lattice gauge theories describing our universe.
+We propose DLHMC as an efficient algorithm for MCMC, and observed a dramatic improvement in simulating 2D $U(1)$ gauge
+theory.
+%
+Being able to efficiently tunnel topological sectors is a significant first step toward efficient simulating lattice
+gauge theories describing our universe.
 %
 We plan to continue developing this approach with the goal of eventually scaling up to the 4D \(SU(3)\) gauge theory of
 QCD.\@
 %
 \subsubsection*{Acknowledgments}
-This research was supported by the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S. Department of Energy Office of Science and the National Nuclear Security Administration.
-This research was performed using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE Office of Science User
-Facility supported under Contract DE\_AC02--06CH11357. 
+This research was supported by the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S.
+Department of Energy Office of Science and the National Nuclear Security Administration.
+%
+This research was performed using resources of the Argonne Leadership Computing Facility (ALCF), which is a DOE Office
+of Science User Facility supported under Contract DE\_AC02--06CH11357. 
 %
 This work describes objective technical results and analysis.
 %
@@ -479,10 +485,6 @@ DOE or the United States Government.
 Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its
 many data science libraries
 \citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251,arviz_2019}
-
-% Results presented in this research were obtained using the Python \citep{van1995python}, programming language and its
-% many data science libraries
-% \citep{matplotlib,numpyharris2020array,tensorflow2015-whitepaper,seaborn_michael_waskom_2017_883859,ipython4160251,arviz_2019}
 %
 
 \bibliography{iclr2021_conference.bib}
@@ -588,13 +590,6 @@ our progress through the training phase, which can be written explicitly as
    \DontPrintSemicolon%
    \caption{\label{alg:training}Training procedure}%
    \Input{%
-         %(1.) \texttt{Target distribution,} \(p_{t}(x)\propto e^{-\beta_{t} U(x)}\)
-         %(2.) \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
-         %   A (\xi^{\prime}|\xi))\)
-         %(3.) \texttt{Learning rate schedule}, \({\{\alpha_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-         %(4.) \texttt{Annealing schedule}, \({\{\gamma_{t}\}}_{t=0}^{N_{\mathrm{train}}}\)
-         %(5.) \texttt{Batch of initial states}, \(x\)
-      % {}\\
       \begin{enumerate}
          \item \texttt{Loss function}, \(\mathcal{L}_{\theta}(\xi^{\prime},\xi,
             A(\xi^{\prime}|\xi))\)
