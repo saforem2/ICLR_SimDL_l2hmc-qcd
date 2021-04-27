@@ -514,7 +514,7 @@ Our joint distribution can then be written as \(%
 %
 This system obeys Hamilton's equations: % 
 \(\dot{x} = \frac{\partial\mathcal{H}}{\partial v}\), \(\dot{v} = -\frac{\partial H}{\partial x}\), which can be 
-numerically integrated using the leapfrog integrator along iso-probability contours of \(\mathcal{H} = \text{const.}\).
+numerically integrated along iso-probability contours of \(\mathcal{H} = \text{const.}\).
 %
 Explicitly, for a step size \(\varepsilon\) and initial state \(\xi = (x, v)\), the leapfrog integrator generates a
 proposal configuration \(\xi^{\prime} \equiv (x^{\prime}, v^{\prime})\) by performing the following series of updates: 
@@ -552,7 +552,7 @@ acceptance criteria,
    \label{eq:mhcriteria}
 \end{equation}
 %
-The generic leapfrog integrator is known to be symplectic (conserves energy), so the Jacobian factor reduces to
+The leapfrog integrator is symplectic, so the Jacobian factor reduces to
 \(\left|\frac{\partial\xi^{\prime}}{\partial\xi^{T}}\right| = 1\). 
 %
 \section{\label{sec:annealing}Annealing Schedule}
