@@ -46,17 +46,20 @@
 
 \definecolor{caribbeangreen}{rgb}{0.0, 0.8, 0.6}
 \definecolor{pinkred}{HTML}{FA5477}
+\definecolor{newred}{HTML}{f92672}
 \definecolor{newblue}{HTML}{448AFF}
 \definecolor{newdarkblue}{HTML}{0282CA}
 \definecolor{newpurple}{HTML}{CC4FFF}
 \definecolor{newgreen}{HTML}{51C569}
 \definecolor{newlightblue}{HTML}{71C8A7}
+\definecolor{linkblue}{HTML}{0282CA}
+\definecolor{linkblue1}{HTML}{2196F3}
 %{448AFF}
 \hypersetup{
   colorlinks=true,
-  urlcolor=newpurple,
-  linkcolor=pinkred,
-  citecolor=newblue,
+  urlcolor=linkblue1,
+  linkcolor=newred,
+  citecolor=newpurple,
 }
 
 % \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=10,shrink=10]{microtype}
@@ -605,7 +608,7 @@ our progress through the training phase, which can be written explicitly as
    % {}\;
    \For{\(0 \leq t < N_{\mathrm{train}}\)}{%
       % {}\;
-      \texttt{update } \(p_{t}(x)\propto e^{-\gamma_{t}S_{\beta}(x)}\)\;
+      % \texttt{update } \(p_{t}(x)\propto e^{-\gamma_{t}S_{\beta}(x)}\)\;
       \texttt{resample } \(v\sim\mathcal{N}(0, \mathbbm{1})\)\;
       \texttt{resample } \(d\sim\mathcal{U}(+,-)\)\;
       \texttt{construct } \(\xi_{0} \equiv (x_{0}, v_{0}, d_{0})\)\;
