@@ -223,7 +223,7 @@ The binary direction variable, as introduced in L2HMC~\citep{levy2017}, \(d\in\m
 ``direction'' (forward/backward) of our update.
 %
 
-DLHMC algorithm further generalize the leapfrog steps in L2HMC using individual neural networks.
+DLHMC further generalizes the leapfrog steps in L2HMC using individual neural networks.
 %
 Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for
 the $k$-th layer, to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward
@@ -379,6 +379,12 @@ Our loss function is then defined as
       \left[\,-\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)\,\right]
    }
 \end{equation}
+[*** should this just be
+\begin{equation}
+   \mathcal{L}(\xi^{\prime};\xi) = 
+      -\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)
+\end{equation}
+]
 %
 where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) -
 \mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
@@ -408,13 +414,14 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
    simulation cost.}
 \end{wrapfigure}
-To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge which
+To measure the improvement of our model, we evaluate the integrated autocorrelation time of the topological charge, $\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}$, which
 can be interpreted roughly as the number of trajectories needed (on average) before an independent sample is drawn.
 %
 In order to more accurately capture the computational effort between the two approaches we scale our estimate of the
-integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau\).  We can see in
-\Figref{fig:autocorrvsbeta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots,
-7\).
+integrated autocorrelation time by the number of leapfrog steps as \(N_{\mathrm{LF}}\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\).
+We can see in
+\Figref{fig:autocorrvsbeta}, that the trained model consistently outperforms generic HMC across \(\beta = 2, 3, \ldots, 7\) and for the largest
+lattice coupling studied, $\beta=7$, standard HMC would take about one hundred times more updates to generate an independent configuration as DLHMC.
 %
 To ensure the validity of our results, each trained run was compared to multiple HMC runs across a range of
 \(N_{\mathrm{LF}}\) and \(\varepsilon\) values.
@@ -435,7 +442,7 @@ training.
 We believe that this ability to vary the energy during the trajectory helps the sampler to overcome energy barriers
 between topological sectors whereas HMC remains stuck.
 %
-As can be seen in \Figref{fig:sinQf}, the real-valued topological charge exhibits mixing behavior at the middle of the
+As can be seen in \Figref{fig:sinQf}, the continuous topological charge exhibits mixing behavior at the middle of the
 deep neural network.
 %
 \begin{figure}[htpb]
@@ -460,7 +467,7 @@ deep neural network.
    \hfill
    \begin{subfigure}[t]{0.315\textwidth}
       \includegraphics[width=\textwidth]{figures/ridgeplots/sinQf.pdf}
-      \caption{\label{fig:sinQf}The real-valued topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at each
+      \caption{\label{fig:sinQf}The continuous topological charge, \(\mathcal{Q}_{\mathbb{R}}\) at each
       leapfrog layer.}%
    \end{subfigure}
    \caption{Plots showing how various quantities of interest are transformed as they're passed through each of the
