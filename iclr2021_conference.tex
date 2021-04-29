@@ -8,7 +8,7 @@
 \input{math_commands.tex}
 
 
-\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{xcolor}
 % \setlength{\marginparwidth}{2cm}
 \usepackage{enumitem}
 \usepackage{bbm}
@@ -92,7 +92,7 @@
    %\thanks{\href{%
    %    https://github.com/saforem2/l2hmc-qcd
    % }{https://github.com/saforem2/l2hmc-qcd} \\
-   \(^{1}\)Leadership Computing Facility, \(^{2}\)Computational Sciences Division\\
+   \(^{1}\)Leadership Computing Facility, \(^{2}\)Computational Science Division\\
    Argonne National Laboratory\\
 }
 
@@ -223,7 +223,7 @@ The binary direction variable, as introduced in L2HMC~\citep{levy2017}, \(d\in\m
 ``direction'' (forward/backward) of our update.
 %
 
-DLHMC further generalizes the leapfrog steps in L2HMC using individual neural networks.
+DLHMC further generalizes the leapfrog steps in L2HMC using individual neural networks, collectively parameterized by weights \(\theta\).
 %
 Each leapfrog step in DLHMC is a layer of the deep neural network that transforms the input $\xi_k=(x_k,v_k,d_k)$, for
 the $k$-th layer, to output $(x''_k,v''_k,d_k)$, where $d_k$ stays constant choosing either the forward or backward
@@ -261,7 +261,7 @@ updates in \Eqref{eq:newmomentumupdate} and \Eqref{eq:newpositionupdate}.
 %
 \begin{figure}[htpb]
    \centering
-   \includegraphics[width=\textwidth]{figures/lflayer.pdf}
+   \includegraphics[width=0.94\textwidth]{figures/lflayer.pdf}
    % \includegraphics[width=\textwidth]{figures/lflayer3.pdf}
    \caption{\label{fig:network}Illustration of the network architecture used in \Eqref{eq:newmomentumupdate} and
    \Eqref{eq:newpositionupdate}.}
@@ -375,20 +375,18 @@ network.
 Our loss function is then defined as
 %
 \begin{equation}
-   \mathcal{L}(\theta) = \mathbb{E}_{p(\xi)}{%
+   \mathcal{L}(\theta) = \mathbb{E}_{p_{t}(\xi)}{%
+   %\frac{1}{M}\sum_{m}{%
+   %\mathbb{E}_{p(\xi)}{%
       \left[\,-\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)\,\right]
    }
 \end{equation}
-[*** should this just be
-\begin{equation}
-   \mathcal{L}(\xi^{\prime};\xi) = 
-      -\delta(\xi^{\prime}, \xi) \, A(\xi^{\prime}|\xi)
-\end{equation}
-]
 %
 where \(\delta(\xi^{\prime}, \xi) \equiv {\left(\mathcal{Q}_{\mathbb{R}}(x^{\prime}) -
 \mathcal{Q}_{\mathbb{R}}(x)\right)}^{2}\) and \(A(\xi^{\prime}|\xi)\) is given in \Eqref{eq:mhcriteria}.
 %
+In practice we approximate the exact loss function with a sample
+over a batch of MC configurations.
 %
 \section{\label{sec:results}Results}
 %
