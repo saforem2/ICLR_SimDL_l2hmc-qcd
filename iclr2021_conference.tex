@@ -8,7 +8,7 @@
 \input{math_commands.tex}
 
 
-\usepackage{xcolor}
+\usepackage[usenames,dvipsnames]{xcolor}
 % \setlength{\marginparwidth}{2cm}
 \usepackage{enumitem}
 \usepackage{bbm}
@@ -59,7 +59,7 @@
 %{448AFF}
 \hypersetup{
   colorlinks=true,
-  urlcolor=blue,
+  urlcolor=newblue,
   linkcolor=awesome,
   citecolor=newpurple,
 }
@@ -73,8 +73,8 @@
 \definecolor{blue1}{HTML}{448aff}
 \definecolor{pink1}{HTML}{FA5477}
 
-\newcommand{\mbart}{\textcolor{red}{\bar{m}^{k}}}
-\newcommand{\mt}{\textcolor{blue}{m^{k}}}
+\newcommand{\mbart}{\textcolor{awesome}{\bar{m}^{k}}}
+\newcommand{\mt}{\textcolor{newblue}{m^{k}}}
 
 
 
@@ -403,7 +403,7 @@ A typical training run on 1 node (\(8\times\) NVIDIA A100 GPUs) using a batch si
 \begin{wrapfigure}{r}{0.425\textwidth}
    \centering
       \centering
-      \includegraphics[width=0.425\textwidth]{figures/autocorr_vs_beta_blue_2120.pdf}
+      \includegraphics[width=0.425\textwidth]{figures/autocorr_vs_beta.pdf}
       \caption{\label{fig:autocorrvsbeta}Estimate of the integrated autocorrelation time
       \(\tau_{\mathrm{int}}^{\mathcal{Q}_{\mathbb{R}}}\) vs \(\beta\), scaled by \(N_{\mathrm{LF}}\) to account for
    simulation cost.}
